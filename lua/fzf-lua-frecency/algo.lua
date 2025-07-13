@@ -7,7 +7,7 @@ local DECAY_RATE = math.log(2) / HALF_LIFE_SEC
 local M = {}
 
 --- @param date_in_sec number
-M._get_pretty_date = function(date_in_sec)
+local _get_pretty_date = function(date_in_sec)
   return os.date("%Y-%m-%d %H:%M:%S", date_in_sec)
 end
 
@@ -22,15 +22,16 @@ end
 
 --- @param filename string
 --- @param opts? AddOpts
-M.add = function(filename, opts)
+M.add_file_score = function(filename, opts)
   opts = opts or {}
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local db_dir = h.default(opts.db_dir, vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
   local debug = h.default(opts.debug, false)
   if debug then
-    h.notify_debug(("-"):rep(7 + #filename))
-    h.notify_debug("DEBUG: add %s", filename)
-    h.notify_debug(("-"):rep(7 + #filename))
+    local debug_header = ("DEBUG: add_file_score %s"):format(filename)
+    h.notify_debug(("-"):rep(#debug_header))
+    h.notify_debug(debug_header)
+    h.notify_debug(("-"):rep(#debug_header))
   end
 
   local dated_files_path = vim.fs.joinpath(db_dir, "dated-files.mpack")
@@ -62,15 +63,15 @@ M.add = function(filename, opts)
   end
 
   if debug then
-    h.notify_debug("now: %s", M._get_pretty_date(now))
+    h.notify_debug("now: %s", _get_pretty_date(now))
     h.notify_debug("dated_files: %s", vim.inspect(dated_files))
     h.notify_debug(
       "date_at_score_one: %s",
-      date_at_score_one and M._get_pretty_date(date_at_score_one) or "no date_at_score_one"
+      date_at_score_one and _get_pretty_date(date_at_score_one) or "no date_at_score_one"
     )
     h.notify_debug("score: %s", score)
     h.notify_debug("updated_score: %s", updated_score)
-    h.notify_debug("updated_date_at_score_one: %s", M._get_pretty_date(updated_date_at_score_one))
+    h.notify_debug("updated_date_at_score_one: %s", _get_pretty_date(updated_date_at_score_one))
     h.notify_debug("scored_files before sort: %s", vim.inspect(scored_files))
   end
 
@@ -93,15 +94,16 @@ end
 
 --- @param opts? AddOpts
 --- @return ScoredFile[]
-M.get = function(opts)
+M.get_sorted_scored_files = function(opts)
   opts = opts or {}
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local db_dir = h.default(opts.db_dir, vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
   local debug = h.default(opts.debug, false)
   if debug then
-    h.notify_debug(("-"):rep(10))
-    h.notify_debug "DEBUG: get"
-    h.notify_debug(("-"):rep(10))
+    local debug_header = "DEBUG: get_sorted_scored_files"
+    h.notify_debug(("-"):rep(#debug_header))
+    h.notify_debug(debug_header)
+    h.notify_debug(("-"):rep(#debug_header))
   end
 
   local sorted_scored_files_path = vim.fs.joinpath(db_dir, "sorted-scored-files.mpack")

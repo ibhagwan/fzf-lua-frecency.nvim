@@ -11,20 +11,20 @@ end
 --- @param level vim.log.levels
 --- @param msg string
 --- @param ... any
-M._notify = function(level, msg, ...)
+local _notify = function(level, msg, ...)
   vim.notify(msg:format(...), level)
 end
 
 --- @param msg string
 --- @param ... any
 M.notify_error = function(msg, ...)
-  M._notify(vim.log.levels.ERROR, msg, ...)
+  _notify(vim.log.levels.ERROR, msg, ...)
 end
 
 --- @param msg string
 --- @param ... any
 M.notify_debug = function(msg, ...)
-  M._notify(vim.log.levels.DEBUG, msg, ...)
+  _notify(vim.log.levels.DEBUG, msg, ...)
 end
 
 M.vimscript_true = 1
