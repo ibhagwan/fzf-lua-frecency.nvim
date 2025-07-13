@@ -75,11 +75,11 @@ Mozilla's frecency algorithm.
   to `1`. Using the `date_at_score_one`, current time, and decay-rate, we can
   derive the current score for each file.
 - The scores for all files are computed, and the files are sorted and output
-  to a `txt` file. This `txt` file is scoped to the current working directory
-  to avoid filtering out irrelevant files. - Files with a score of less than
-  `0.95` (i.e. a file that hasn't been accessed in two days) are filtered out
-  - these files will be grouped with the results of `fd` instead. Files that
-  are no longer available (i.e. deleted) are also filtered during this step.
+  to a `txt` file. This `txt` file is scoped to the current working directory.
+  - Files with a score of less than `0.95` (i.e. a file that hasn't been
+  accessed in two days) are filtered out - these files will be grouped with
+  the results of `fd` instead. Files that are no longer available (i.e.
+  deleted) are also filtered during this step.
 - When the picker is invoked, the `txt` file is read and it's content are
   streamed into the UI. In parallel, the results from `fd` are also streamed
   in.

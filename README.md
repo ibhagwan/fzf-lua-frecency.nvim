@@ -38,7 +38,7 @@ require('fzf-lua-frecency').clear_db({
 ## ⚙️ How it works
 - When a file is selected, it receives a score of `+1`. This score decays exponentially over time, with a half-life of 30 days i.e. if the current score is `1`, it will become `0.5` in 30 days.
 - Scores are not stored directly. Instead, an `mpack`-encoded file keeps track of `{ [cwd] = { [filename] = date_at_score_one } }`, where `date_at_score_one` represents the time at which the file's score will decay to `1`. Using the `date_at_score_one`, current time, and decay-rate, we can derive the current score for each file. 
-- The scores for all files are computed, and the files are sorted and output to a `txt` file. This `txt` file is scoped to the current working directory to avoid filtering out irrelevant files.
+- The scores for all files are computed, and the files are sorted and output to a `txt` file. This `txt` file is scoped to the current working directory.
   - Files with a score of less than `0.95` (i.e. a file that hasn't been accessed in two days) are filtered out - these files will be grouped with the results of `fd` instead. Files that are no longer available (i.e. deleted) are also filtered during this step.
 - When the picker is invoked, the `txt` file is read and it's content are streamed into the UI. In parallel, the results from `fd` are also streamed in.
 
