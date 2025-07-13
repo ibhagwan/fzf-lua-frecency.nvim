@@ -33,17 +33,20 @@ local function read_sorted()
   return data
 end
 
+local function cleanup()
+  os.remove(dated_files_path)
+  os.remove(sorted_files_path)
+  os.remove(test_file_a)
+  os.remove(test_file_b)
+  create_file(test_file_a)
+  create_file(test_file_b)
+end
+
 local T = MiniTest.new_set()
 T["#add_file_score"] = MiniTest.new_set {
   hooks = {
-    pre_case = function()
-      os.remove(dated_files_path)
-      os.remove(sorted_files_path)
-      os.remove(test_file_a)
-      os.remove(test_file_b)
-      create_file(test_file_a)
-      create_file(test_file_b)
-    end,
+    pre_case = cleanup,
+    post_case = cleanup,
   },
 }
 
