@@ -13,7 +13,7 @@ M.frecency = function(opts)
     coroutine.wrap(function()
       local co = coroutine.running()
 
-      local scored_files = algo.get { cwd = cwd, debug = true, }
+      local scored_files = algo.get_sorted_scored_files { cwd = cwd, }
       for _, scored_file in ipairs(scored_files) do
         local abs_file = scored_file.filename
         seen[abs_file] = true
@@ -73,11 +73,9 @@ M.frecency = function(opts)
   local wrapped_enter = function(action)
     return function(selected, action_opts)
       for _, sel in ipairs(selected) do
-        -- https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
+        -- based on https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
         local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
-        algo.add(filename, {
-          cwd = cwd,
-        })
+        algo.add_file_score(filename, { cwd = cwd, })
       end
 
       return action(selected, action_opts)
