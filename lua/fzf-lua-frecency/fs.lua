@@ -1,4 +1,4 @@
-local h = require "lua.fzf-lua-frecency.helpers"
+local h = require "fzf-lua-frecency.helpers"
 
 local M = {}
 
