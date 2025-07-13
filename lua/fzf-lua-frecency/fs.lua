@@ -32,21 +32,19 @@ end
 --- @param opts WriteOpts
 --- @return nil
 M.write = function(opts)
+  -- vim.fn.mkdir won't throw
+  local path_dir = vim.fs.dirname(opts.path)
+  local mkdir_res = vim.fn.mkdir(path_dir, "p")
+  if mkdir_res == h.vimscript_false then
+    h.notify_error "ERROR: vim.fn.mkdir returned vimscript_false"
+    return
+  end
+
   -- io.open won't throw
   local file = io.open(opts.path, "w")
   if file == nil then
-    local path_dir = vim.fs.dirname(opts.path)
-    local mkdir_res = vim.fn.mkdir(path_dir, "p")
-    if mkdir_res == h.vimscript_false then
-      h.notify_error "ERROR: vim.fn.mkdir returned vimscript_false"
-      return
-    end
-
-    file = io.open(opts.path, "w")
-    if file == nil then
-      h.notify_error("ERROR: io.open failed to open the file created with vim.fn.mkdir at path: %s", opts.path)
-      return
-    end
+    h.notify_error("ERROR: io.open failed to open the file created with vim.fn.mkdir at path: %s", opts.path)
+    return
   end
 
   if opts.encode then
