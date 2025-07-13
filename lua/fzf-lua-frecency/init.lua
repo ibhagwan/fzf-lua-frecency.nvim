@@ -3,6 +3,15 @@ local h = require "fzf-lua-frecency.helpers"
 local algo = require "fzf-lua-frecency.algo"
 local M = {}
 
+--- @class FzfLuaFrecency
+--- @field debug boolean
+--- @field db_dir string the root directory in which to persist frecency scores
+
+--- @class FzfLuaFrecencyOpts
+--- @field fzf_lua_frecency FzfLuaFrecency
+--- @field [string] any any fzf-lua option
+
+--- @param opts FzfLuaFrecencyOpts
 M.frecency = function(opts)
   opts = opts or {}
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
