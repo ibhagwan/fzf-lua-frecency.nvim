@@ -8,7 +8,6 @@ M.read = function(path)
   -- io.open won't throw
   local file = io.open(path, "r")
   if file == nil then
-    h.notify_error("ERROR: File at path: %s was nil", path)
     return {}
   end
 
