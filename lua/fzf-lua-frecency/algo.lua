@@ -1,5 +1,5 @@
-local h = require "lua.fzf-lua-frecency.helpers"
-local fs = require "lua.fzf-lua-frecency.fs"
+local h = require "fzf-lua-frecency.helpers"
+local fs = require "fzf-lua-frecency.fs"
 
 local HALF_LIFE_SEC = 30 * 24 * 60 * 60
 local DECAY_RATE = math.log(2) / HALF_LIFE_SEC
@@ -11,21 +11,25 @@ M._get_pretty_date = function(date_in_sec)
   return os.date("%Y-%m-%d %H:%M:%S", date_in_sec)
 end
 
+--- @class ScoredFile
+--- @field score number
+--- @field filename string
+
 --- @class AddOpts
 --- @field cwd string
 --- @field db_dir string
 --- @field debug boolean
 
 --- @param filename string
---- @param opts AddOpts
+--- @param opts? AddOpts
 M.add = function(filename, opts)
   opts = opts or {}
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local db_dir = h.default(opts.db_dir, vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
   local debug = h.default(opts.debug, false)
   if debug then
-    if debug then h.notify_debug(("-"):rep(7 + #filename)) end
-    h.notify_debug("DEBUG: %s", filename)
+    h.notify_debug(("-"):rep(7 + #filename))
+    h.notify_debug("DEBUG: add %s", filename)
     h.notify_debug(("-"):rep(7 + #filename))
   end
 
@@ -50,6 +54,7 @@ M.add = function(filename, opts)
   dated_files[cwd][filename] = updated_date_at_score_one
   fs.write(dated_files_path, dated_files)
 
+  --- @type ScoredFile[]
   local scored_files = {}
   for entry_file, entry_date_at_one_point in pairs(dated_files[cwd]) do
     local recomputed_score = math.exp(DECAY_RATE * (entry_date_at_one_point - now))
@@ -86,11 +91,29 @@ M.add = function(filename, opts)
   fs.write(sorted_scored_files_path, sorted_scored_files)
 end
 
-M.add(
-  "/file/alpha",
-  { debug = true, })
-M.add(
-  "/file/beta",
-  { debug = true, })
+--- @param opts? AddOpts
+--- @return ScoredFile[]
+M.get = function(opts)
+  opts = opts or {}
+  local cwd = h.default(opts.cwd, vim.fn.getcwd())
+  local db_dir = h.default(opts.db_dir, vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+  local debug = h.default(opts.debug, false)
+  if debug then
+    h.notify_debug(("-"):rep(10))
+    h.notify_debug "DEBUG: get"
+    h.notify_debug(("-"):rep(10))
+  end
+
+  local sorted_scored_files_path = vim.fs.joinpath(db_dir, "sorted-scored-files.mpack")
+  local sorted_scored_files = fs.read(sorted_scored_files_path)
+
+  if not sorted_scored_files[cwd] then
+    sorted_scored_files[cwd] = {}
+  end
+  if debug then
+    h.notify_debug("sorted_scored_files[cwd]: %s", vim.inspect(sorted_scored_files[cwd]))
+  end
+  return sorted_scored_files[cwd]
+end
 
 return M
