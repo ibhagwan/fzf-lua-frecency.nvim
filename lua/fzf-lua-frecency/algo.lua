@@ -1,15 +1,38 @@
 local h = require "fzf-lua-frecency.helpers"
 local fs = require "fzf-lua-frecency.fs"
 
-local HALF_LIFE_SEC = 30 * 24 * 60 * 60
-local DECAY_RATE = math.log(2) / HALF_LIFE_SEC
-
 local M = {}
+
+local half_life_sec = 30 * 24 * 60 * 60
+local decay_rate = math.log(2) / half_life_sec
 
 --- @param date_in_sec number
 local _get_pretty_date = function(date_in_sec)
   return os.date("%Y-%m-%d %H:%M:%S", date_in_sec)
 end
+
+M._now = function()
+  return os.time()
+end
+
+--- @class ComputeScore
+--- @field date_at_score_one number an os.time date
+--- @field now number an os.time date
+
+--- @param opts ComputeScore
+M.compute_score = function(opts)
+  return math.exp(decay_rate * (opts.date_at_score_one - opts.now))
+end
+
+--- @class ComputeDateAtScoreOne
+--- @field score number
+--- @field now number an os.time date
+
+--- @param opts ComputeDateAtScoreOne
+M.compute_date_at_score_one = function(opts)
+  return opts.now + math.log(opts.score) / decay_rate
+end
+
 
 --- @class ScoredFile
 --- @field score number
@@ -31,7 +54,7 @@ M.add_file_score = function(filename, opts)
     h.notify_debug_header("DEBUG: add_file_score %s", filename)
   end
 
-  local now = os.time()
+  local now = M._now()
 
   local dated_files = fs.read(opts.dated_files_path)
   if not dated_files[cwd] then
@@ -41,10 +64,10 @@ M.add_file_score = function(filename, opts)
   local score = 0
   local date_at_score_one = dated_files[cwd][filename]
   if date_at_score_one then
-    score = math.exp(DECAY_RATE * (date_at_score_one - now))
+    score = M.compute_score { now = now, date_at_score_one = date_at_score_one, }
   end
   local updated_score = score + 1
-  local updated_date_at_score_one = now + math.log(updated_score) / DECAY_RATE
+  local updated_date_at_score_one = M.compute_date_at_score_one { now = now, score = updated_score, }
 
   dated_files[cwd][filename] = updated_date_at_score_one
   fs.write { path = opts.dated_files_path, data = dated_files, encode = true, }
@@ -52,14 +75,23 @@ M.add_file_score = function(filename, opts)
   --- @type ScoredFile[]
   local scored_files = {}
   local updated_dated_files = {}
-  for entry_dated_file, entry_date_at_one_point in pairs(dated_files[cwd]) do
-    local recomputed_score = math.exp(DECAY_RATE * (entry_date_at_one_point - now))
-    if vim.fn.filereadable(entry_dated_file) and recomputed_score > 0.95 then
-      table.insert(scored_files, { filename = entry_dated_file, score = recomputed_score, })
-      updated_dated_files[entry_dated_file] = entry_date_at_one_point
+  for dated_file_entry, date_at_one_point_entry in pairs(dated_files[cwd]) do
+    local recomputed_score = M.compute_score { now = now, date_at_score_one = date_at_one_point_entry, }
+
+    local accessed_in_past_two_days = recomputed_score > 0.95
+    local readable = vim.fn.filereadable(dated_file_entry) == h.vimscript_true
+
+    if readable and accessed_in_past_two_days then
+      table.insert(scored_files, { filename = dated_file_entry, score = recomputed_score, })
+      updated_dated_files[dated_file_entry] = date_at_one_point_entry
     end
   end
   dated_files[cwd] = updated_dated_files
+  fs.write {
+    data = dated_files,
+    path = opts.dated_files_path,
+    encode = true,
+  }
 
   if debug then
     h.notify_debug("now: %s", _get_pretty_date(now))
