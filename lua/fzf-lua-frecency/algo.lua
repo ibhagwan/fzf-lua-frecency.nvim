@@ -1,7 +1,7 @@
 local h = require "lua.fzf-lua-frecency.helpers"
 local fs = require "lua.fzf-lua-frecency.fs"
 
-local HALF_LIFE_SEC = 30 / (24 * 60 * 60)
+local HALF_LIFE_SEC = 30 * 24 * 60 * 60
 local DECAY_RATE = math.log(2) / HALF_LIFE_SEC
 
 local M = {}
