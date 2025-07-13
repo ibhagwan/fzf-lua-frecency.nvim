@@ -30,10 +30,7 @@ require('fzf-lua-frecency').frecency({
 
 ## TODO:
 - [ ] testing
-- [ ] differentiate between fzf-lua options and fzf-lua-frecency options
 - [ ] healthcheck
 - [ ] more info on performance in the README
 - [ ] investigate off-loading to a script
-- [ ] investigate ranking files < 1 after `fd`
 - [ ] purge deleted files
-- [ ] purge files below a threshold?

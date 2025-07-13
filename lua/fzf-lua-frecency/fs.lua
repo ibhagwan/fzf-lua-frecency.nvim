@@ -24,33 +24,42 @@ M.read = function(path)
   return decoded_data
 end
 
---- @param path string
---- @param data table
+--- @class WriteOpts
+--- @field path string
+--- @field data table | string
+--- @field encode boolean
+
+--- @param opts WriteOpts
 --- @return nil
-M.write = function(path, data)
+M.write = function(opts)
   -- io.open won't throw
-  local file = io.open(path, "w")
+  local file = io.open(opts.path, "w")
   if file == nil then
-    local path_dir = vim.fs.dirname(path)
+    local path_dir = vim.fs.dirname(opts.path)
     local mkdir_res = vim.fn.mkdir(path_dir, "p")
     if mkdir_res == h.vimscript_false then
       h.notify_error "ERROR: vim.fn.mkdir returned vimscript_false"
       return
     end
 
-    file = io.open(path, "w")
+    file = io.open(opts.path, "w")
     if file == nil then
-      h.notify_error("ERROR: io.open failed to open the file created with vim.fn.mkdir at path: %s", path)
+      h.notify_error("ERROR: io.open failed to open the file created with vim.fn.mkdir at path: %s", opts.path)
       return
     end
   end
 
-  local encode_ok, encoded_data = pcall(vim.mpack.encode, data)
-  if encode_ok then
-    file:write(encoded_data)
+  if opts.encode then
+    local encode_ok, encoded_data = pcall(vim.mpack.encode, opts.data)
+    if encode_ok then
+      file:write(encoded_data)
+    else
+      h.notify_error("ERROR: vim.mpack.encode threw: %s", encoded_data)
+    end
   else
-    h.notify_error("ERROR: vim.mpack.encode threw: %s", encoded_data)
+    file:write(opts.data)
   end
+
   file:close()
 end
 
