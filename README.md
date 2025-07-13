@@ -1,3 +1,6 @@
 # fzf-lua-frecency.nvim
 
-WIP
+## TODO:
+- [ ] testing
+- [ ] descriptive README
+- [ ] differentiate between fzf-lua options and fzf-lua-frecency options
