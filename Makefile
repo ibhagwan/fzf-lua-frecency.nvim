@@ -15,6 +15,6 @@ test:
 	nvim --headless --noplugin -u ./scripts/minimal_init.lua -c "lua MiniTest.run()"
 
 docs: 
-	./deps/ts-vimdoc.nvim/scripts/docgen.sh README.md doc/rg-glob-builder.txt rg-glob-builder
+	./deps/ts-vimdoc.nvim/scripts/docgen.sh README.md doc/fzf-lua-frecency.txt fzf-lua-frecency
 
 deploy: test lint docs
