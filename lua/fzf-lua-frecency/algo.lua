@@ -82,7 +82,7 @@ M.add = function(filename, opts)
   end
 
   table.sort(scored_cwd_list, function(a, b)
-    return a.score < b.score
+    return a.score > b.score
   end)
 
   if debug then
