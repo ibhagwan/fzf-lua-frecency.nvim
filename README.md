@@ -7,12 +7,6 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 ## Status
 * This plugin is still a WIP, breaking changes are likely!
 
-## Features
-
-* Ranks files using a frecency score (frequency + recency)
-* File scores persist across sessions using `vim.mpack`
-* Uses coroutines for smooth streaming and interleaving of results
-
 ## Usage
 
 ```lua
