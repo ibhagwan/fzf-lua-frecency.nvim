@@ -10,29 +10,22 @@ M.frecency = function(opts)
   local contents = function(fzf_cb)
     local seen = {}
 
-    --- @param on_exit function
-    local function run_frecency(on_exit)
-      coroutine.wrap(function()
-        local co = coroutine.running()
+    coroutine.wrap(function()
+      local co = coroutine.running()
 
-        local scored_files = algo.get { cwd = cwd, }
-        for _, scored_file in ipairs(scored_files) do
-          local abs_file = scored_file.filename
-          seen[abs_file] = true
+      local scored_files = algo.get { cwd = cwd, debug = true, }
+      for _, scored_file in ipairs(scored_files) do
+        local abs_file = scored_file.filename
+        seen[abs_file] = true
 
-          local rel_file = vim.fs.relpath(cwd, abs_file)
-          local entry = fzf_lua.make_entry.file(rel_file, opts)
-          fzf_cb(entry, function()
-            coroutine.resume(co)
-          end)
-          coroutine.yield()
-        end
+        local rel_file = vim.fs.relpath(cwd, abs_file)
+        local entry = fzf_lua.make_entry.file(rel_file, opts)
+        fzf_cb(entry, function()
+          coroutine.resume(co)
+        end)
+        coroutine.yield()
+      end
 
-        on_exit()
-      end)()
-    end
-
-    local function run_fd()
       local fd_cmd = {
         "fd",
         "--absolute-path",
@@ -74,9 +67,7 @@ M.frecency = function(opts)
         function()
           fzf_cb(nil)
         end)
-    end
-
-    run_frecency(run_fd)
+    end)()
   end
 
   local wrapped_enter = function(action)
