@@ -3,12 +3,10 @@
 ==============================================================================
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
 
-Status ............................................. |fzf-lua-frecency-status|
 Performance ................................... |fzf-lua-frecency-performance|
 Usage ............................................... |fzf-lua-frecency-usage|
 Dependencies ................................. |fzf-lua-frecency-dependencies|
 Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
-TODO: ............................................... |fzf-lua-frecency-todo:|
 
 ==============================================================================
 FZF-LUA-FRECENCY.NVIM                 *fzf-lua-frecency-fzf-lua-frecency.nvim*
@@ -21,12 +19,6 @@ recently you use them.
 Implements a variant <https://wiki.mozilla.org/User:Jesse/NewFrecency> of
 Mozilla's frecency algorithm.
 
-
-------------------------------------------------------------------------------
-STATUS                                               *fzf-lua-frecency-status*
-
-
-* This plugin is still a WIP, breaking changes are likely!
 
 ------------------------------------------------------------------------------
 PERFORMANCE                                     *fzf-lua-frecency-performance*
@@ -52,6 +44,7 @@ USAGE                                                 *fzf-lua-frecency-usage*
     require('fzf-lua-frecency').frecency({
        -- any fzf-lua option
        -- ...
+       -- these are the defaults, no need to pass this manually
        fzf_lua_frecency = {
            debug = false,
            db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
@@ -80,11 +73,5 @@ SIMILAR PLUGINS                             *fzf-lua-frecency-similar-plugins*
   <https://github.com/ibhagwan/fzf-lua/discussions/2174>
 - fzf-lua-enchanted-files
   <https://github.com/otavioschwanck/fzf-lua-enchanted-files>
-
-------------------------------------------------------------------------------
-TODO:                                                 *fzf-lua-frecency-todo:*
-
-
-- [ ] testing
 
 vim:tw=78:ts=8:ft=help:norl:

@@ -4,9 +4,6 @@ A frecency-based file picker for [fzf-lua](https://github.com/ibhagwan/fzf-lua),
 
 Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozilla's frecency algorithm.
 
-## Status
-* This plugin is still a WIP, breaking changes are likely!
-
 ## Performance
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
@@ -21,6 +18,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 require('fzf-lua-frecency').frecency({
    -- any fzf-lua option
    -- ...
+   -- these are the defaults, no need to pass this manually
    fzf_lua_frecency = {
        debug = false,
        db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
@@ -40,6 +38,3 @@ require('fzf-lua-frecency').frecency({
 - [snacks.nvim's smart picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md#smart)
 - [fre integration with fzf-lua](https://github.com/ibhagwan/fzf-lua/discussions/2174)
 - [fzf-lua-enchanted-files](https://github.com/otavioschwanck/fzf-lua-enchanted-files)
-
-## TODO:
-- [ ] testing
