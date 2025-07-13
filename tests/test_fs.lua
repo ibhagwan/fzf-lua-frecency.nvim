@@ -1,8 +1,8 @@
 local fs = require "fzf-lua-frecency.fs"
 local h = require "fzf-lua-frecency.helpers"
 
-local db_dir = vim.fs.joinpath(vim.fn.getcwd(), "tests-db-dir")
-local test_file = vim.fs.joinpath(db_dir, "test.mpack")
+local cwd = vim.fs.joinpath(vim.fn.getcwd(), "test-fs", "files")
+local test_file = vim.fs.joinpath(cwd, "test.mpack")
 
 local T = MiniTest.new_set()
 

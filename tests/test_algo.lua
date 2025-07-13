@@ -1,8 +1,8 @@
 local algo = require "fzf-lua-frecency.algo"
 local fs = require "fzf-lua-frecency.fs"
 
-local db_dir = vim.fs.joinpath(vim.fn.getcwd(), "tests-db-dir")
-local cwd = vim.fs.joinpath(vim.fn.getcwd(), "/tests-cwd")
+local db_dir = vim.fs.joinpath(vim.fn.getcwd(), "test-algo", "db-dir")
+local cwd = vim.fs.joinpath(vim.fn.getcwd(), "test-algo", "files")
 local dated_files_path = vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
 local sorted_files_path = vim.fs.joinpath(db_dir, "dated-files.mpack")
 local test_file_a = vim.fs.joinpath(cwd, "test-file-a.txt")
