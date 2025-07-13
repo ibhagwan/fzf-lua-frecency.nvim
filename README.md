@@ -11,7 +11,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
 - Frecency scores are recomputed when a file is opened, not when launching the file picker.
-   - Note: This design comes with a tradeoff - if a significant time passes between opening a file and triggering the picker, the score data may be slightly stale.
+   - **Note**: This design comes with a tradeoff - if a significant amount of time passes between opening a file and triggering the picker, the score data may be slightly stale.
 - Frecency-ranked lists are stored separately for each working directory (`cwd`). This avoids filtering irrelevant files at runtime.
 - The frecency-ranked list is streamed alongside results from `fd`. This ensures the most relevant files appear first without delaying the rest of the results.
 
@@ -43,4 +43,3 @@ require('fzf-lua-frecency').frecency({
 
 ## TODO:
 - [ ] testing
-- [ ] healthcheck
