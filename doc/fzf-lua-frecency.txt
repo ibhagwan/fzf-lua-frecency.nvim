@@ -1,10 +1,9 @@
-*fzf-lua-frecency.txt*                               Last change: 2025 July 12
+*fzf-lua-frecency.txt*                               Last change: 2025 July 13
 
 ==============================================================================
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
 
 Status ............................................. |fzf-lua-frecency-status|
-Features ......................................... |fzf-lua-frecency-features|
 Usage ............................................... |fzf-lua-frecency-usage|
 Dependencies ................................. |fzf-lua-frecency-dependencies|
 Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
@@ -27,14 +26,6 @@ STATUS                                               *fzf-lua-frecency-status*
 
 
 * This plugin is still a WIP, breaking changes are likely!
-
-------------------------------------------------------------------------------
-FEATURES                                           *fzf-lua-frecency-features*
-
-
-* Ranks files using a frecency score (frequency + recency)
-* File scores persist across sessions using `vim.mpack`
-* Uses coroutines for smooth streaming and interleaving of results
 
 ------------------------------------------------------------------------------
 USAGE                                                 *fzf-lua-frecency-usage*
@@ -78,5 +69,7 @@ TODO:                                                 *fzf-lua-frecency-todo:*
 - [ ] more info on performance in the README
 - [ ] investigate off-loading to a script
 - [ ] investigate ranking files < 1 after `fd`
+- [ ] purge deleted files
+- [ ] purge files below a threshold?
 
 vim:tw=78:ts=8:ft=help:norl:
