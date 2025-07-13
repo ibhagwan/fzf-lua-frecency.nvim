@@ -25,7 +25,6 @@ M.read = function(path)
   return decoded_data
 end
 
-
 --- @param path string
 --- @param data table
 --- @return nil

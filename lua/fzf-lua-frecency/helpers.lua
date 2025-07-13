@@ -8,10 +8,23 @@ M.default = function(val, default_val)
   return val == nil and default_val or val
 end
 
+--- @param level vim.log.levels
+--- @param msg string
+--- @param ... any
+M._notify = function(level, msg, ...)
+  vim.notify(msg:format(...), level)
+end
+
 --- @param msg string
 --- @param ... any
 M.notify_error = function(msg, ...)
-  vim.notify(msg:format(...), vim.log.levels.ERROR)
+  M._notify(vim.log.levels.ERROR, msg, ...)
+end
+
+--- @param msg string
+--- @param ... any
+M.notify_debug = function(msg, ...)
+  M._notify(vim.log.levels.DEBUG, msg, ...)
 end
 
 M.vimscript_true = 1
