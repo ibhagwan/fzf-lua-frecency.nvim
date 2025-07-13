@@ -52,12 +52,11 @@ M.add_file_score = function(filename, opts)
   --- @type ScoredFile[]
   local scored_files = {}
   local updated_dated_files = {}
-  for entry_file, entry_date_at_one_point in pairs(dated_files[cwd]) do
+  for entry_dated_file, entry_date_at_one_point in pairs(dated_files[cwd]) do
     local recomputed_score = math.exp(DECAY_RATE * (entry_date_at_one_point - now))
-    -- if a file hasn't been accessed in 2 days
-    if recomputed_score > 0.95 then
-      table.insert(scored_files, { filename = entry_file, score = recomputed_score, })
-      updated_dated_files[entry_file] = entry_date_at_one_point
+    if vim.fn.filereadable(entry_dated_file) and recomputed_score > 0.95 then
+      table.insert(scored_files, { filename = entry_dated_file, score = recomputed_score, })
+      updated_dated_files[entry_dated_file] = entry_date_at_one_point
     end
   end
   dated_files[cwd] = updated_dated_files
