@@ -7,6 +7,7 @@ Performance ................................... |fzf-lua-frecency-performance|
 Usage ............................................... |fzf-lua-frecency-usage|
 Dependencies ................................. |fzf-lua-frecency-dependencies|
 Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
+TODO ................................................. |fzf-lua-frecency-todo|
 
 ==============================================================================
 FZF-LUA-FRECENCY.NVIM                 *fzf-lua-frecency-fzf-lua-frecency.nvim*
@@ -73,5 +74,16 @@ SIMILAR PLUGINS                             *fzf-lua-frecency-similar-plugins*
   <https://github.com/ibhagwan/fzf-lua/discussions/2174>
 - fzf-lua-enchanted-files
   <https://github.com/otavioschwanck/fzf-lua-enchanted-files>
+
+------------------------------------------------------------------------------
+TODO                                                   *fzf-lua-frecency-todo*
+
+
+- [ ] nicer looking readme, emojis, etc
+- [ ] show the frecency score in the picker?
+- [ ] fd_cmd option
+- [ ] user commands
+- [ ] API documentation
+- [ ] functions to clear data
 
 vim:tw=78:ts=8:ft=help:norl:
