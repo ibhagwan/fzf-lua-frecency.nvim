@@ -54,7 +54,6 @@ T["#add_file_score"]["adds score entry for new file"] = function()
   algo._now = function() return now end
 
   algo.add_file_score(test_file_a, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -72,7 +71,6 @@ T["#add_file_score"]["increments score on repeated calls"] = function()
   algo._now = function() return now end
 
   algo.add_file_score(test_file_a, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -86,7 +84,6 @@ T["#add_file_score"]["increments score on repeated calls"] = function()
   algo._now = function() return now_after_30_min end
 
   algo.add_file_score(test_file_a, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -102,7 +99,6 @@ T["#add_file_score"]["recalculates all scores when adding a new file"] = functio
   algo._now = function() return now end
 
   algo.add_file_score(test_file_a, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -116,7 +112,6 @@ T["#add_file_score"]["recalculates all scores when adding a new file"] = functio
   algo._now = function() return now_after_30_min end
 
   algo.add_file_score(test_file_b, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -138,7 +133,6 @@ T["#add_file_score"]["filters files lower than 0.95"] = function()
   algo._now = function() return now end
 
   algo.add_file_score(test_file_a, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -152,7 +146,6 @@ T["#add_file_score"]["filters files lower than 0.95"] = function()
   algo._now = function() return now_after_3_days end
 
   algo.add_file_score(test_file_b, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -174,7 +167,6 @@ T["#add_file_score"]["filters deleted files"] = function()
   algo._now = function() return now end
 
   algo.add_file_score(test_file_a, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -189,7 +181,6 @@ T["#add_file_score"]["filters deleted files"] = function()
   os.remove(test_file_a)
 
   algo.add_file_score(test_file_b, {
-    debug = false,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,

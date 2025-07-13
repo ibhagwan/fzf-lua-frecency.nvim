@@ -110,9 +110,6 @@ M.add_file_score = function(filename, opts)
     return a.score > b.score
   end)
   local scored_files_list = vim.tbl_map(function(scored_file) return scored_file.filename end, scored_files)
-  if debug then
-    h.notify_debug("scored_files after sort: %s", vim.inspect(scored_files))
-  end
   fs.write {
     path = opts.sorted_files_path,
     data = table.concat(scored_files_list, "\n") .. "\n",
