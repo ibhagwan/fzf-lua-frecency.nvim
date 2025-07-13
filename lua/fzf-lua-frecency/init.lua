@@ -1,25 +1,51 @@
 local fzf_lua = require "fzf-lua"
 local h = require "fzf-lua-frecency.helpers"
 local algo = require "fzf-lua-frecency.algo"
+
 local M = {}
+
+local function get_default_db_dir()
+  return vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")
+end
+
+--- @param db_dir string
+--- @param cwd string
+local function get_sorted_files_path(db_dir, cwd)
+  return vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
+end
+
+--- @param db_dir string
+local function get_dated_files_path(db_dir)
+  return vim.fs.joinpath(db_dir, "dated-files.mpack")
+end
 
 --- @class FzfLuaFrecency
 --- @field debug boolean
---- @field db_dir string the root directory in which to persist frecency scores
+--- @field db_dir string the directory in which to persist frecency scores
+--- @field fd_cmd string
 
---- @class FzfLuaFrecencyOpts
+--- @class FrecencyOpts
 --- @field fzf_lua_frecency FzfLuaFrecency
 --- @field [string] any any fzf-lua option
 
---- @param opts FzfLuaFrecencyOpts
+--- @param opts FrecencyOpts
 M.frecency = function(opts)
   opts = opts or {}
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local frecency_opts = h.default(opts.fzf_lua_frecency, {})
   local debug = h.default(frecency_opts.debug, false)
-  local db_dir = h.default(frecency_opts.db_dir, vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
-  local sorted_files_path = vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
-  local dated_files_path = vim.fs.joinpath(db_dir, "dated-files.mpack")
+  local db_dir = h.default(frecency_opts.db_dir, get_default_db_dir())
+  local default_fd_cmd = table.concat({
+    "fd",
+    "--absolute-path",
+    "--type", "f",
+    "--type", "l",
+    "--exclude", ".git",
+    "--base-directory", cwd,
+  }, " ")
+  local fd_cmd = h.default(frecency_opts.fd_cmd, default_fd_cmd)
+  local sorted_files_path = get_sorted_files_path(db_dir, cwd)
+  local dated_files_path = get_dated_files_path(db_dir)
 
   local wrapped_enter = function(action)
     return function(selected, action_opts)
@@ -71,17 +97,24 @@ M.frecency = function(opts)
     "2>/dev/null",
   }, " ")
 
-  local fd_cmd = table.concat({
-    "fd",
-    "--absolute-path",
-    "--type", "f",
-    "--type", "l",
-    "--exclude", ".git",
-    "--base-directory", cwd,
-  }, " ")
-
   local cmd = ("cat <(%s) <(%s)"):format(cat_cmd, fd_cmd)
   fzf_lua.fzf_exec(cmd, fzf_exec_opts)
+end
+
+--- @class ClearDbOpts
+--- @field db_dir? string
+
+--- Deletes the `dated-files.mpack` file and the `cwds` directory.
+--- Does not delete `db_dir` itself or anything else in `db_dir`
+--- @param opts? ClearDbOpts
+M.clear_db = function(opts)
+  opts = opts or {}
+  local db_dir = h.default(opts.db_dir, get_default_db_dir())
+  local sorted_files_dir = vim.fs.joinpath(db_dir, "cwds")
+  local dated_files_path = get_dated_files_path(db_dir)
+
+  vim.fn.delete(sorted_files_dir, "rf")
+  vim.fn.delete(dated_files_path)
 end
 
 return M
