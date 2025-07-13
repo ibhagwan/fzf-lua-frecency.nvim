@@ -1,0 +1,104 @@
+local fzf_lua = require "fzf-lua"
+local h = require "fzf-lua-frecency.helpers"
+local algo = require "fzf-lua-frecency.algo"
+local M = {}
+
+M.frecency = function(opts)
+  opts = opts or {}
+  local cwd = opts.cwd or vim.fn.getcwd()
+
+  local contents = function(fzf_cb)
+    local seen = {}
+
+    --- @param on_exit function
+    local function run_frecency(on_exit)
+      coroutine.wrap(function()
+        local co = coroutine.running()
+
+        local scored_files = algo.get { cwd = cwd, }
+        for _, scored_file in ipairs(scored_files) do
+          local abs_file = scored_file.filename
+          seen[abs_file] = true
+
+          local rel_file = vim.fs.relpath(cwd, abs_file)
+          local entry = fzf_lua.make_entry.file(rel_file, opts)
+          fzf_cb(entry, function()
+            coroutine.resume(co)
+          end)
+          coroutine.yield()
+        end
+
+        on_exit()
+      end)()
+    end
+
+    local function run_fd()
+      local fd_cmd = {
+        "fd",
+        "--absolute-path",
+        "--type", "f",
+        "--type", "l",
+        "--exclude", ".git",
+        "--base-directory", cwd,
+      }
+
+      vim.system(fd_cmd, {
+          text = true,
+          stdout = function(err, data)
+            if err then
+              h.notify_error("ERROR: vim.system threw when running fd with error: %s", err)
+              return
+            end
+
+            if type(data) ~= "string" then return end
+            local files = vim.split(data, "\n")
+
+            coroutine.wrap(function()
+              local co = coroutine.running()
+
+              for _, abs_file in ipairs(files) do
+                if seen[abs_file] then goto continue end
+
+                local rel_file = vim.fs.relpath(cwd, abs_file)
+                local entry = fzf_lua.make_entry.file(rel_file, opts)
+                fzf_cb(entry, function()
+                  coroutine.resume(co)
+                end)
+                coroutine.yield()
+
+                ::continue::
+              end
+            end)()
+          end,
+        },
+        function()
+          fzf_cb(nil)
+        end)
+    end
+
+    run_frecency(run_fd)
+  end
+
+  local wrapped_enter = function(action)
+    return function(selected, action_opts)
+      for _, sel in ipairs(selected) do
+        -- https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
+        local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
+        algo.add(filename, {
+          cwd = cwd,
+        })
+      end
+
+      return action(selected, action_opts)
+    end
+  end
+
+  local actions = vim.tbl_extend("force", fzf_lua.defaults.actions.files, {
+    enter = wrapped_enter(fzf_lua.defaults.actions.files.enter),
+  })
+  local default_opts = { actions = actions, }
+  local fzf_exec_opts = vim.tbl_extend("force", default_opts, opts)
+  fzf_lua.fzf_exec(contents, fzf_exec_opts)
+end
+
+return M
