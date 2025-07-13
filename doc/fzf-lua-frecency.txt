@@ -3,11 +3,11 @@
 ==============================================================================
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
 
-Performance ................................... |fzf-lua-frecency-performance|
-Usage ............................................... |fzf-lua-frecency-usage|
-Dependencies ................................. |fzf-lua-frecency-dependencies|
-Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
-TODO ................................................. |fzf-lua-frecency-todo|
+⏱️Performance ....................... |fzf-lua-frecency-⏱️performance|
+📚 Usage ..................................... |fzf-lua-frecency-📚-usage|
+🔗 Dependencies ....................... |fzf-lua-frecency-🔗-dependencies|
+👥 Similar plugins ................. |fzf-lua-frecency-👥-similar-plugins|
+✅ TODO ......................................... |fzf-lua-frecency-✅-todo|
 
 ==============================================================================
 FZF-LUA-FRECENCY.NVIM                 *fzf-lua-frecency-fzf-lua-frecency.nvim*
@@ -22,7 +22,7 @@ Mozilla's frecency algorithm.
 
 
 ------------------------------------------------------------------------------
-PERFORMANCE                                     *fzf-lua-frecency-performance*
+⏱️PERFORMANCE                         *fzf-lua-frecency-⏱️performance*
 
 
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
@@ -38,23 +38,31 @@ PERFORMANCE                                     *fzf-lua-frecency-performance*
   the results.
 
 ------------------------------------------------------------------------------
-USAGE                                                 *fzf-lua-frecency-usage*
+📚 USAGE                                       *fzf-lua-frecency-📚-usage*
 
 
 >lua
+    require('fzf-lua-frecency').frecency()
     require('fzf-lua-frecency').frecency({
        -- any fzf-lua option
        -- ...
-       -- these are the defaults, no need to pass this manually
+       -- defaults:
        fzf_lua_frecency = {
            debug = false,
            db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
        }
     })
 <
+>lua
+    require('fzf-lua-frecency').clear_db()
+    require('fzf-lua-frecency').clear_db({
+       -- defaults:
+       db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+    })
+<
 
 ------------------------------------------------------------------------------
-DEPENDENCIES                                   *fzf-lua-frecency-dependencies*
+🔗 DEPENDENCIES                         *fzf-lua-frecency-🔗-dependencies*
 
 
 * fzf-lua <https://github.com/ibhagwan/fzf-lua>
@@ -62,7 +70,7 @@ DEPENDENCIES                                   *fzf-lua-frecency-dependencies*
 * Neovim 0.9+
 
 ------------------------------------------------------------------------------
-SIMILAR PLUGINS                             *fzf-lua-frecency-similar-plugins*
+👥 SIMILAR PLUGINS                   *fzf-lua-frecency-👥-similar-plugins*
 
 
 - telescope-frecency.nvim
@@ -76,14 +84,11 @@ SIMILAR PLUGINS                             *fzf-lua-frecency-similar-plugins*
   <https://github.com/otavioschwanck/fzf-lua-enchanted-files>
 
 ------------------------------------------------------------------------------
-TODO                                                   *fzf-lua-frecency-todo*
+✅ TODO                                           *fzf-lua-frecency-✅-todo*
 
 
 - [ ] nicer looking readme, emojis, etc
 - [ ] show the frecency score in the picker?
-- [ ] fd_cmd option
 - [ ] user commands
-- [ ] API documentation
-- [ ] functions to clear data
 
 vim:tw=78:ts=8:ft=help:norl:

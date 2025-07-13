@@ -4,7 +4,7 @@ A frecency-based file picker for [fzf-lua](https://github.com/ibhagwan/fzf-lua),
 
 Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozilla's frecency algorithm.
 
-## Performance
+## ⏱️Performance
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
 - Frecency scores are recomputed when a file is opened, not when launching the file picker.
@@ -12,13 +12,14 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 - Frecency-ranked lists are stored separately for each working directory (`cwd`). This avoids filtering irrelevant files at runtime.
 - The frecency-ranked list is streamed alongside results from `fd`. This ensures the most relevant files appear first without delaying the rest of the results.
 
-## Usage
+## 📚 Usage
 
 ```lua
+require('fzf-lua-frecency').frecency()
 require('fzf-lua-frecency').frecency({
    -- any fzf-lua option
    -- ...
-   -- these are the defaults, no need to pass this manually
+   -- defaults:
    fzf_lua_frecency = {
        debug = false,
        db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
@@ -26,23 +27,28 @@ require('fzf-lua-frecency').frecency({
 })
 ```
 
-## Dependencies
+```lua
+require('fzf-lua-frecency').clear_db()
+require('fzf-lua-frecency').clear_db({
+   -- defaults:
+   db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+})
+```
+
+## 🔗 Dependencies
 
 * [fzf-lua](https://github.com/ibhagwan/fzf-lua)
 * [`fd`](https://github.com/sharkdp/fd)
 * Neovim 0.9+
 
-## Similar plugins
+## 👥 Similar plugins
 - [telescope-frecency.nvim](https://github.com/nvim-telescope/telescope-frecency.nvim)
 - [smart-open.nvim](https://github.com/danielfalk/smart-open.nvim)
 - [snacks.nvim's smart picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md#smart)
 - [fre integration with fzf-lua](https://github.com/ibhagwan/fzf-lua/discussions/2174)
 - [fzf-lua-enchanted-files](https://github.com/otavioschwanck/fzf-lua-enchanted-files)
 
-## TODO
+## ✅ TODO
 - [ ] nicer looking readme, emojis, etc
 - [ ] show the frecency score in the picker?
-- [ ] fd_cmd option
 - [ ] user commands
-- [ ] API documentation
-- [ ] functions to clear data
