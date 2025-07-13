@@ -85,7 +85,18 @@ M.frecency = function(opts)
   local actions = vim.tbl_extend("force", fzf_lua.defaults.actions.files, {
     enter = wrapped_enter(fzf_lua.defaults.actions.files.enter),
   })
-  local default_opts = { actions = actions, }
+  -- relevant options from the default `files` options
+  -- https://github.com/ibhagwan/fzf-lua/blob/f972ad787ee8d3646d30000a0652e9b168a90840/lua/fzf-lua/defaults.lua#L336-L360
+  local default_opts = {
+    actions      = actions,
+    previewer    = "builtin",
+    multiprocess = true,
+    file_icons   = true,
+    color_icons  = true,
+    git_icons    = false,
+    fzf_opts     = { ["--multi"] = true, ["--scheme"] = "path", },
+    winopts      = { preview = { winopts = { cursorline = false, }, }, },
+  }
   local fzf_exec_opts = vim.tbl_extend("force", default_opts, opts)
   fzf_lua.fzf_exec(contents, fzf_exec_opts)
 end
