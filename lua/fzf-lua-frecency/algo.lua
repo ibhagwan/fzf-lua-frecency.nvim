@@ -33,26 +33,40 @@ M.compute_date_at_score_one = function(opts)
   return opts.now + math.log(opts.score) / decay_rate
 end
 
+local function assert_field(field, name)
+  if not field then
+    h.notify_error("ERROR: missing %s!", name)
+    return false
+  end
+  return true
+end
 
 --- @class ScoredFile
 --- @field score number
 --- @field filename string
 
 --- @class AddFileScoreOpts
---- @field debug boolean
---- @field cwd string
+--- @field debug? boolean
+--- @field cwd? string
 --- @field sorted_files_path string
 --- @field dated_files_path string
 
 --- @param filename string
---- @param opts? AddFileScoreOpts
+--- @param opts AddFileScoreOpts
 M.add_file_score = function(filename, opts)
-  opts = h.default(opts, {})
+  if not assert_field(filename, "filename")
+      or not assert_field(opts, "opts")
+      or not assert_field(opts.dated_files_path, "opts.dated_files_path")
+      or not assert_field(opts.sorted_files_path, "opts.sorted_files_path") then
+    return
+  end
+
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local debug = h.default(opts.debug, false)
   if debug then
     h.notify_debug_header("DEBUG: add_file_score %s", filename)
   end
+
 
   local now = M._now()
 

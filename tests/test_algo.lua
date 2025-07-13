@@ -1,4 +1,5 @@
 local algo = require "fzf-lua-frecency.algo"
+local h = require "fzf-lua-frecency.helpers"
 local fs = require "fzf-lua-frecency.fs"
 
 local db_dir = vim.fs.joinpath(vim.fn.getcwd(), "test-algo", "db-dir")
@@ -33,7 +34,10 @@ local function read_sorted()
   return data
 end
 
+local h_notify_error = h.notify_error
+
 local function cleanup()
+  h.notify_error = h_notify_error
   os.remove(dated_files_path)
   os.remove(sorted_files_path)
   os.remove(test_file_a)
@@ -49,6 +53,61 @@ T["#add_file_score"] = MiniTest.new_set {
     post_case = cleanup,
   },
 }
+
+T["#add_file_score"]["missing fields"] = MiniTest.new_set()
+T["#add_file_score"]["missing fields"]["throws when missing filename"] = function()
+  local called_err = false
+  h.notify_error = function(msg)
+    print(msg)
+    called_err = msg:find "ERROR: missing " ~= nil
+  end
+
+  algo.add_file_score()
+  MiniTest.expect.equality(called_err, true)
+end
+
+T["#add_file_score"]["missing fields"]["throws when missing opts"] = function()
+  local called_err = false
+  h.notify_error = function(msg)
+    print(msg)
+    called_err = msg:find "ERROR: missing " ~= nil
+  end
+
+  algo.add_file_score(test_file_a)
+  MiniTest.expect.equality(called_err, true)
+  MiniTest.expect.equality(fs.read(dated_files_path)[cwd], nil)
+  MiniTest.expect.equality(read_sorted(), "")
+end
+
+T["#add_file_score"]["missing fields"]["throws when missing opts.sorted_files_path"] = function()
+  local called_err = false
+  h.notify_error = function(msg)
+    print(msg)
+    called_err = msg:find "ERROR: missing " ~= nil
+  end
+
+  algo.add_file_score(test_file_a, {
+    dated_files_path = dated_files_path,
+  })
+  MiniTest.expect.equality(called_err, true)
+  MiniTest.expect.equality(fs.read(dated_files_path)[cwd], nil)
+  MiniTest.expect.equality(read_sorted(), "")
+end
+
+T["#add_file_score"]["missing fields"]["throws when missing opts.sorted_files_path"] = function()
+  local called_err = false
+  h.notify_error = function(msg)
+    print(msg)
+    called_err = msg:find "ERROR: missing " ~= nil
+  end
+
+  algo.add_file_score(test_file_a, {
+    sorted_files_path = sorted_files_path,
+  })
+  MiniTest.expect.equality(called_err, true)
+  MiniTest.expect.equality(fs.read(dated_files_path)[cwd], nil)
+  MiniTest.expect.equality(read_sorted(), "")
+end
 
 T["#add_file_score"]["adds score entry for new file"] = function()
   algo._now = function() return now end
