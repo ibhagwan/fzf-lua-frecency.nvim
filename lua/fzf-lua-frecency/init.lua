@@ -14,16 +14,18 @@ M.frecency = function(opts)
 
   local wrapped_enter = function(action)
     return function(selected, action_opts)
-      for _, sel in ipairs(selected) do
-        -- based on https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
-        local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
-        algo.add_file_score(filename, {
-          debug = debug,
-          dated_files_path = dated_files_path,
-          sorted_files_path = sorted_files_path,
-          cwd = cwd,
-        })
-      end
+      vim.schedule(function()
+        for _, sel in ipairs(selected) do
+          -- based on https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
+          local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
+          algo.add_file_score(filename, {
+            debug = debug,
+            dated_files_path = dated_files_path,
+            sorted_files_path = sorted_files_path,
+            cwd = cwd,
+          })
+        end
+      end)
 
       return action(selected, action_opts)
     end

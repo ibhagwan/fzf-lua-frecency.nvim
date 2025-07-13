@@ -48,6 +48,7 @@ M.write = function(opts)
   end
 
   if opts.encode then
+    -- vim.mpack.encode will throw
     local encode_ok, encoded_data = pcall(vim.mpack.encode, opts.data)
     if encode_ok then
       file:write(encoded_data)
