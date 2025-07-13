@@ -1,20 +1,14 @@
 local h = require "lua.fzf-lua-frecency.helpers"
 local fs = require "lua.fzf-lua-frecency.fs"
 
-local HALF_LIFE_DAYS = 30
-local DECAY_RATE = math.log(2) / HALF_LIFE_DAYS
+local HALF_LIFE_SEC = 30 / (24 * 60 * 60)
+local DECAY_RATE = math.log(2) / HALF_LIFE_SEC
 
 local M = {}
 
---- @param date_in_days number
-M._get_pretty_date = function(date_in_days)
-  local date_in_sec = date_in_days * 24 * 60 * 60
+--- @param date_in_sec number
+M._get_pretty_date = function(date_in_sec)
   return os.date("%Y-%m-%d %H:%M:%S", date_in_sec)
-end
-
-M._get_now_in_days = function()
-  local now_in_sec = os.time()
-  return now_in_sec / (60 * 60 * 24)
 end
 
 --- @class AddOpts
@@ -38,7 +32,7 @@ M.add = function(filename, opts)
   local scored_files_path = vim.fs.joinpath(db_dir, "scored-files.mpack")
   local sorted_files_path = vim.fs.joinpath(db_dir, "sorted-files.mpack")
 
-  local now = M._get_now_in_days()
+  local now = os.time()
 
   local scored_files = fs.read(scored_files_path)
   if not scored_files[cwd] then
@@ -63,8 +57,7 @@ M.add = function(filename, opts)
   end
 
   if debug then
-    h.notify_debug("now: %s", now)
-    h.notify_debug("pretty now: %s", M._get_pretty_date(now))
+    h.notify_debug("now: %s", M._get_pretty_date(now))
     h.notify_debug("scored_files: %s", vim.inspect(scored_files))
     h.notify_debug(
       "date_at_one_point: %s",
