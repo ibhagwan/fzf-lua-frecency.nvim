@@ -2,16 +2,29 @@
 
 A frecency-based file picker for [fzf-lua](https://github.com/ibhagwan/fzf-lua), ranking files by how frequently and recently you use them.
 
-Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozilla's frecency algorithm
+Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozilla's frecency algorithm.
 
 ## Status
 * This plugin is still a WIP, breaking changes are likely!
+
+## Performance
+`fzf-lua-frecency.nvim` prioritizes performance in a few ways:
+
+- Frecency scores are recomputed when a file is opened, not when launching the file picker.
+   - Note: This design comes with a tradeoff - if a significant time passes between opening a file and triggering the picker, the score data may be slightly stale.
+- Frecency-ranked lists are stored separately for each working directory (`cwd`). This avoids filtering irrelevant files at runtime.
+- The frecency-ranked list is streamed alongside results from `fd`. This ensures the most relevant files appear first without delaying the rest of the results.
 
 ## Usage
 
 ```lua
 require('fzf-lua-frecency').frecency({
    -- any fzf-lua option
+   -- ...
+   fzf_lua_frecency = {
+       debug = false,
+       db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+   }
 })
 ```
 
@@ -31,6 +44,3 @@ require('fzf-lua-frecency').frecency({
 ## TODO:
 - [ ] testing
 - [ ] healthcheck
-- [ ] more info on performance in the README
-- [ ] investigate off-loading to a script
-- [ ] purge deleted files

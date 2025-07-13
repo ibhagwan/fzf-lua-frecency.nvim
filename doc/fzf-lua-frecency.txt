@@ -4,6 +4,7 @@
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
 
 Status ............................................. |fzf-lua-frecency-status|
+Performance ................................... |fzf-lua-frecency-performance|
 Usage ............................................... |fzf-lua-frecency-usage|
 Dependencies ................................. |fzf-lua-frecency-dependencies|
 Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
@@ -18,7 +19,7 @@ A frecency-based file picker for fzf-lua
 recently you use them.
 
 Implements a variant <https://wiki.mozilla.org/User:Jesse/NewFrecency> of
-Mozilla's frecency algorithm
+Mozilla's frecency algorithm.
 
 
 ------------------------------------------------------------------------------
@@ -28,12 +29,33 @@ STATUS                                               *fzf-lua-frecency-status*
 * This plugin is still a WIP, breaking changes are likely!
 
 ------------------------------------------------------------------------------
+PERFORMANCE                                     *fzf-lua-frecency-performance*
+
+
+`fzf-lua-frecency.nvim` prioritizes performance in a few ways:
+
+- Frecency scores are recomputed when a file is opened, not when launching the
+  file picker. - Note: This design comes with a tradeoff - if a significant
+  time passes between opening a file and triggering the picker, the score data
+  may be slightly stale.
+- Frecency-ranked lists are stored separately for each working directory
+  (`cwd`). This avoids filtering irrelevant files at runtime.
+- The frecency-ranked list is streamed alongside results from `fd`. This
+  ensures the most relevant files appear first without delaying the rest of
+  the results.
+
+------------------------------------------------------------------------------
 USAGE                                                 *fzf-lua-frecency-usage*
 
 
 >lua
     require('fzf-lua-frecency').frecency({
        -- any fzf-lua option
+       -- ...
+       fzf_lua_frecency = {
+           debug = false,
+           db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+       }
     })
 <
 
@@ -64,12 +86,6 @@ TODO:                                                 *fzf-lua-frecency-todo:*
 
 
 - [ ] testing
-- [ ] differentiate between fzf-lua options and fzf-lua-frecency options
 - [ ] healthcheck
-- [ ] more info on performance in the README
-- [ ] investigate off-loading to a script
-- [ ] investigate ranking files < 1 after `fd`
-- [ ] purge deleted files
-- [ ] purge files below a threshold?
 
 vim:tw=78:ts=8:ft=help:norl:
