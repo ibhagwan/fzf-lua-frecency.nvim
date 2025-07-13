@@ -50,7 +50,8 @@ Mozilla's frecency algorithm.
        -- defaults:
        fzf_lua_frecency = {
            debug = false,
-           db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+           db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
+           fd_cmd = "fd --absolute-path --type f --type l --exclude .git --base-directory [cwd]" -- where cwd is opts.cwd provided to fzf-lua, or vim.fn.getcwd()
        }
     })
 <
