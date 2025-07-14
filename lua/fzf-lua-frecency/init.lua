@@ -1,8 +1,9 @@
 local fzf_lua = require "fzf-lua"
-local h = require "fzf-lua-frecency.helpers"
-local algo = require "fzf-lua-frecency.algo"
+local h       = require "fzf-lua-frecency.helpers"
+local algo    = require "fzf-lua-frecency.algo"
+local fs      = require "fzf-lua-frecency.fs"
 
-local M = {}
+local M       = {}
 
 local function get_default_db_dir()
   return vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")
@@ -19,10 +20,18 @@ local function get_dated_files_path(db_dir)
   return vim.fs.joinpath(db_dir, "dated-files.mpack")
 end
 
+--- @param num number
+--- @param decimals number
+local function truncate(num, decimals)
+  local factor = 10 ^ decimals
+  return math.floor(num * factor) / factor
+end
+
 --- @class FzfLuaFrecency
 --- @field debug boolean
 --- @field db_dir string the directory in which to persist frecency scores
 --- @field fd_cmd string
+--- @field display_score boolean
 
 --- @class FrecencyOpts
 --- @field fzf_lua_frecency FzfLuaFrecency
@@ -33,6 +42,7 @@ M.frecency = function(opts)
   opts = opts or {}
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local frecency_opts = h.default(opts.fzf_lua_frecency, {})
+  local display_score = h.default(frecency_opts.display_score, false)
   local debug = h.default(frecency_opts.debug, false)
   local db_dir = h.default(frecency_opts.db_dir, get_default_db_dir())
   local default_fd_cmd = table.concat({
@@ -46,6 +56,7 @@ M.frecency = function(opts)
   local fd_cmd = h.default(frecency_opts.fd_cmd, default_fd_cmd)
   local sorted_files_path = get_sorted_files_path(db_dir, cwd)
   local dated_files_path = get_dated_files_path(db_dir)
+  local now = os.time()
 
   local wrapped_enter = function(action)
     return function(selected, action_opts)
@@ -54,6 +65,7 @@ M.frecency = function(opts)
           -- based on https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
           local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
           algo.add_file_score(filename, {
+            now = now,
             debug = debug,
             dated_files_path = dated_files_path,
             sorted_files_path = sorted_files_path,
@@ -69,7 +81,9 @@ M.frecency = function(opts)
   local actions = vim.tbl_extend("force", fzf_lua.defaults.actions.files, {
     enter = wrapped_enter(fzf_lua.defaults.actions.files.enter),
   })
+  local dated_files = fs.read(dated_files_path)
   local seen = {}
+
   -- relevant options from the default `files` options
   -- https://github.com/ibhagwan/fzf-lua/blob/f972ad787ee8d3646d30000a0652e9b168a90840/lua/fzf-lua/defaults.lua#L336-L360
   local default_opts = {
@@ -86,7 +100,19 @@ M.frecency = function(opts)
       seen[abs_file] = true
 
       local rel_file = vim.fs.relpath(cwd, abs_file)
-      return fzf_lua.make_entry.file(rel_file, opts)
+      local entry = fzf_lua.make_entry.file(rel_file, opts)
+
+      if display_score then
+        local score = nil
+        local date_at_score_one = dated_files[cwd] and dated_files[cwd][abs_file] or nil
+        if date_at_score_one then
+          score = algo.compute_score { now = now, date_at_score_one = date_at_score_one, }
+        end
+        local formatted_score = score == nil and "----" or string.format("%.2f", truncate(score, 2))
+        return ("%s %s"):format(formatted_score, entry)
+      end
+
+      return entry
     end,
   }
   local fzf_exec_opts = vim.tbl_extend("force", default_opts, opts)

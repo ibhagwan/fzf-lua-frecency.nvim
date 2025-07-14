@@ -52,6 +52,7 @@ Mozilla's frecency algorithm.
            debug = false,
            db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
            fd_cmd = "fd --absolute-path --type f --type l --exclude .git --base-directory [cwd]" -- where cwd is opts.cwd provided to fzf-lua, or vim.fn.getcwd()
+           display_score = false,
        }
     })
 <
@@ -111,7 +112,6 @@ Mozilla's frecency algorithm.
 📝 TODO                                         *fzf-lua-frecency-📝-todo*
 
 
-- [ ] show the frecency score in the picker?
-- [ ] user commands
+- [ ] User commands
 
 vim:tw=78:ts=8:ft=help:norl:

@@ -11,10 +11,6 @@ local _get_pretty_date = function(date_in_sec)
   return os.date("%Y-%m-%d %H:%M:%S", date_in_sec)
 end
 
-M._now = function()
-  return os.time()
-end
-
 --- @class ComputeScore
 --- @field date_at_score_one number an os.time date
 --- @field now number an os.time date
@@ -48,6 +44,7 @@ end
 --- @class AddFileScoreOpts
 --- @field debug? boolean
 --- @field cwd? string
+--- @field now? number
 --- @field sorted_files_path string
 --- @field dated_files_path string
 
@@ -61,14 +58,12 @@ M.add_file_score = function(filename, opts)
     return
   end
 
+  local now = h.default(opts.now, os.time())
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local debug = h.default(opts.debug, false)
   if debug then
     h.notify_debug_header("DEBUG: add_file_score %s", filename)
   end
-
-
-  local now = M._now()
 
   local dated_files = fs.read(opts.dated_files_path)
   if not dated_files[cwd] then

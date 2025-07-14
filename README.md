@@ -24,6 +24,7 @@ require('fzf-lua-frecency').frecency({
        debug = false,
        db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
        fd_cmd = "fd --absolute-path --type f --type l --exclude .git --base-directory [cwd]" -- where cwd is opts.cwd provided to fzf-lua, or vim.fn.getcwd()
+       display_score = false,
    }
 })
 ```
@@ -57,5 +58,4 @@ require('fzf-lua-frecency').clear_db({
 - [fzf-lua-enchanted-files](https://github.com/otavioschwanck/fzf-lua-enchanted-files)
 
 ## 📝 TODO
-- [ ] show the frecency score in the picker?
-- [ ] user commands
+- [ ] User commands

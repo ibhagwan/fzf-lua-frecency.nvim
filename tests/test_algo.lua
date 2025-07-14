@@ -58,7 +58,6 @@ T["#add_file_score"]["missing fields"] = MiniTest.new_set()
 T["#add_file_score"]["missing fields"]["throws when missing filename"] = function()
   local called_err = false
   h.notify_error = function(msg)
-    print(msg)
     called_err = msg:find "ERROR: missing " ~= nil
   end
 
@@ -69,7 +68,6 @@ end
 T["#add_file_score"]["missing fields"]["throws when missing opts"] = function()
   local called_err = false
   h.notify_error = function(msg)
-    print(msg)
     called_err = msg:find "ERROR: missing " ~= nil
   end
 
@@ -82,7 +80,6 @@ end
 T["#add_file_score"]["missing fields"]["throws when missing opts.sorted_files_path"] = function()
   local called_err = false
   h.notify_error = function(msg)
-    print(msg)
     called_err = msg:find "ERROR: missing " ~= nil
   end
 
@@ -97,7 +94,6 @@ end
 T["#add_file_score"]["missing fields"]["throws when missing opts.sorted_files_path"] = function()
   local called_err = false
   h.notify_error = function(msg)
-    print(msg)
     called_err = msg:find "ERROR: missing " ~= nil
   end
 
@@ -110,9 +106,8 @@ T["#add_file_score"]["missing fields"]["throws when missing opts.sorted_files_pa
 end
 
 T["#add_file_score"]["adds score entry for new file"] = function()
-  algo._now = function() return now end
-
   algo.add_file_score(test_file_a, {
+    now = now,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -127,9 +122,8 @@ T["#add_file_score"]["adds score entry for new file"] = function()
 end
 
 T["#add_file_score"]["increments score on repeated calls"] = function()
-  algo._now = function() return now end
-
   algo.add_file_score(test_file_a, {
+    now = now,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -140,9 +134,8 @@ T["#add_file_score"]["increments score on repeated calls"] = function()
     date_at_score_one_now
   )
 
-  algo._now = function() return now_after_30_min end
-
   algo.add_file_score(test_file_a, {
+    now = now_after_30_min,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -155,9 +148,8 @@ T["#add_file_score"]["increments score on repeated calls"] = function()
 end
 
 T["#add_file_score"]["recalculates all scores when adding a new file"] = function()
-  algo._now = function() return now end
-
   algo.add_file_score(test_file_a, {
+    now = now,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -168,9 +160,8 @@ T["#add_file_score"]["recalculates all scores when adding a new file"] = functio
     date_at_score_one_now
   )
 
-  algo._now = function() return now_after_30_min end
-
   algo.add_file_score(test_file_b, {
+    now = now_after_30_min,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -189,9 +180,8 @@ T["#add_file_score"]["recalculates all scores when adding a new file"] = functio
 end
 
 T["#add_file_score"]["filters files lower than 0.95"] = function()
-  algo._now = function() return now end
-
   algo.add_file_score(test_file_a, {
+    now = now,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -202,9 +192,8 @@ T["#add_file_score"]["filters files lower than 0.95"] = function()
     date_at_score_one_now
   )
 
-  algo._now = function() return now_after_3_days end
-
   algo.add_file_score(test_file_b, {
+    now = now_after_3_days,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -223,9 +212,8 @@ T["#add_file_score"]["filters files lower than 0.95"] = function()
 end
 
 T["#add_file_score"]["filters deleted files"] = function()
-  algo._now = function() return now end
-
   algo.add_file_score(test_file_a, {
+    now = now,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
@@ -236,10 +224,10 @@ T["#add_file_score"]["filters deleted files"] = function()
     date_at_score_one_now
   )
 
-  algo._now = function() return now_after_30_min end
   os.remove(test_file_a)
 
   algo.add_file_score(test_file_b, {
+    now = now_after_30_min,
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
