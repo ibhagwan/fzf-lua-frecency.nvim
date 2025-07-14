@@ -8,7 +8,6 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
 - Frecency scores are recomputed when a file is selected from the picker, _not_ when populating the picker UI.
-   - **Note**: This design comes with a tradeoff - if a significant amount of time passes between opening a file and triggering the picker, the score data may be slightly stale.
 - Scores are stored separately for each working directory (`cwd`). This avoids filtering irrelevant files when populating the picker UI.
 - The list of frecency-ranked files is streamed alongside results from `fd`. This ensures the most relevant files appear first without delaying the rest of the results.
 
@@ -38,9 +37,10 @@ require('fzf-lua-frecency').clear_db({
 ```
 
 ## How it works
-- When a file is selected, it receives a score of `+1`. This score decays exponentially over time with a half-life of 30 days - i.e. if the current score is `1`, it will decay to `0.5` in 30 days.
-- Scores are not stored directly. Instead, an `mpack`-encoded file keeps track of the `date_at_score_one` for each file, which represents the time at which the file's score will decay to `1`. Using the `date_at_score_one`, current time, and decay-rate, we can derive the current score for each file. 
-- The scores for all files are computed, and the files are sorted and output to a `txt` file. This `txt` file is scoped to the current working directory.
+- Files are ranked based on a frecency score. This score decays exponentially over time with a half-life of 30 days - i.e. if the current score is `1`, it will decay to `0.5` in 30 days.
+- Scores are not stored directly. Instead, an `mpack`-encoded file keeps track of the `date_at_score_one` for each file, which represents the time at which the file's score will decay to `1`. Using the `date_at_score_one`, current time, and decay-rate, we can derive a file's current score.
+- When a file is selected, the score for that file is computed, incremented, and converted back to a `date_at_score_one` format.
+- The files are sorted based on current score and output to a `txt` file which is scoped to the current working directory.
   - Files with a score of less than `0.95` (a file that hasn't been accessed in two days) are filtered out - these files will be grouped with the results of `fd` instead. Files that are no longer available (i.e. deleted) are also filtered during this step.
 - When the picker is invoked, the `txt` file is read and it's content are streamed into the UI. In parallel, the results from `fd` are also streamed in.
 
