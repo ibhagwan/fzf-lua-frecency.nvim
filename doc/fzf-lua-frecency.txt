@@ -3,12 +3,12 @@
 ==============================================================================
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
 
-⏱️ Performance ..................... |fzf-lua-frecency-⏱️-performance|
-📚 Usage ..................................... |fzf-lua-frecency-📚-usage|
-⚙️ How it works ................... |fzf-lua-frecency-⚙️-how-it-works|
-🔗 Dependencies ....................... |fzf-lua-frecency-🔗-dependencies|
-👥 Similar plugins ................. |fzf-lua-frecency-👥-similar-plugins|
-📝 TODO ....................................... |fzf-lua-frecency-📝-todo|
+Performance ................................... |fzf-lua-frecency-performance|
+Usage ............................................... |fzf-lua-frecency-usage|
+How it works ................................. |fzf-lua-frecency-how-it-works|
+Dependencies ................................. |fzf-lua-frecency-dependencies|
+Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
+TODO ................................................. |fzf-lua-frecency-todo|
 
 ==============================================================================
 FZF-LUA-FRECENCY.NVIM                 *fzf-lua-frecency-fzf-lua-frecency.nvim*
@@ -23,7 +23,7 @@ Mozilla's frecency algorithm.
 
 
 ------------------------------------------------------------------------------
-⏱️ PERFORMANCE                       *fzf-lua-frecency-⏱️-performance*
+PERFORMANCE                                     *fzf-lua-frecency-performance*
 
 
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
@@ -39,7 +39,7 @@ Mozilla's frecency algorithm.
   the results.
 
 ------------------------------------------------------------------------------
-📚 USAGE                                       *fzf-lua-frecency-📚-usage*
+USAGE                                                 *fzf-lua-frecency-usage*
 
 
 >lua
@@ -65,7 +65,7 @@ Mozilla's frecency algorithm.
 <
 
 ------------------------------------------------------------------------------
-⚙️ HOW IT WORKS                     *fzf-lua-frecency-⚙️-how-it-works*
+HOW IT WORKS                                   *fzf-lua-frecency-how-it-works*
 
 
 - When a file is selected, it receives a score of `+1`. This score decays
@@ -87,7 +87,7 @@ Mozilla's frecency algorithm.
   in.
 
 ------------------------------------------------------------------------------
-🔗 DEPENDENCIES                         *fzf-lua-frecency-🔗-dependencies*
+DEPENDENCIES                                   *fzf-lua-frecency-dependencies*
 
 
 - fzf-lua <https://github.com/ibhagwan/fzf-lua>
@@ -95,7 +95,7 @@ Mozilla's frecency algorithm.
 - Neovim 0.9+
 
 ------------------------------------------------------------------------------
-👥 SIMILAR PLUGINS                   *fzf-lua-frecency-👥-similar-plugins*
+SIMILAR PLUGINS                             *fzf-lua-frecency-similar-plugins*
 
 
 - telescope-frecency.nvim
@@ -109,7 +109,7 @@ Mozilla's frecency algorithm.
   <https://github.com/otavioschwanck/fzf-lua-enchanted-files>
 
 ------------------------------------------------------------------------------
-📝 TODO                                         *fzf-lua-frecency-📝-todo*
+TODO                                                   *fzf-lua-frecency-todo*
 
 
 - [ ] User commands
