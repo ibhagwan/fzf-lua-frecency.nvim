@@ -1,6 +1,3 @@
 [submodule "deps/mini.nvim"]
 	path = deps/mini.nvim
 	url = https://github.com/echasnovski/mini.nvim
-[submodule "deps/ts-vimdoc.nvim"]
-	path = deps/ts-vimdoc.nvim
-	url = https://github.com/ibhagwan/ts-vimdoc.nvim
