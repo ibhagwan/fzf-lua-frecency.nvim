@@ -93,7 +93,7 @@ M.frecency = function(opts)
     file_icons   = true,
     color_icons  = true,
     git_icons    = false,
-    fzf_opts     = { ["--multi"] = true, ["--scheme"] = "path", },
+    fzf_opts     = { ["--multi"] = true, ["--scheme"] = "path", ["--no-sort"] = true, },
     winopts      = { preview = { winopts = { cursorline = false, }, }, },
     fn_transform = function(abs_file)
       if seen[abs_file] then return end
