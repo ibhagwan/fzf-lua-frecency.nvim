@@ -40,4 +40,22 @@ end
 M.vimscript_true = 1
 M.vimscript_false = 0
 
+--- @param str string
+--- @param len number
+M.pad_str = function(str, len)
+  if #str >= len then
+    return tostring(str)
+  end
+
+  local num_spaces = len - #str
+  return string.rep(" ", num_spaces) .. str
+end
+
+--- @param num number
+--- @param decimals number
+M.truncate_num = function(num, decimals)
+  local factor = 10 ^ decimals
+  return math.floor(num * factor) / factor
+end
+
 return M

@@ -20,13 +20,6 @@ local function get_dated_files_path(db_dir)
   return vim.fs.joinpath(db_dir, "dated-files.mpack")
 end
 
---- @param num number
---- @param decimals number
-local function truncate(num, decimals)
-  local factor = 10 ^ decimals
-  return math.floor(num * factor) / factor
-end
-
 --- @class FzfLuaFrecency
 --- @field debug boolean
 --- @field db_dir string the directory in which to persist frecency scores
@@ -108,7 +101,15 @@ M.frecency = function(opts)
         if date_at_score_one then
           score = algo.compute_score { now = now, date_at_score_one = date_at_score_one, }
         end
-        local formatted_score = score == nil and "----" or string.format("%.2f", truncate(score, 2))
+
+        local formatted_score
+        if score == nil then
+          formatted_score = (" "):rep(6)
+        else
+          local truncated_num = h.truncate_num(score, 2)
+          local with_min_decimals = string.format("%.2f", truncated_num)
+          formatted_score = h.pad_str(with_min_decimals, 6)
+        end
         return ("%s %s"):format(formatted_score, entry)
       end
 
