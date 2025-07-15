@@ -27,13 +27,12 @@ PERFORMANCE                                     *fzf-lua-frecency-performance*
 
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
-- Frecency scores are recomputed and sorted when a file is selected from the
+- Frecency scores are computed and sorted when a file is selected from the
   picker, _not_ when populating the picker UI.
 - Scores are stored separately for each working directory (`cwd`). This avoids
   filtering irrelevant files when populating the picker UI.
-- The list of frecency-ranked files is streamed alongside results from `fd`.
-  This ensures the most frecent files appear first without delaying the rest
-  of the results.
+- The picker UI opens instantly, with frecency-ranked files and `fd` results
+  streaming in over time.
 
 ------------------------------------------------------------------------------
 USAGE                                                 *fzf-lua-frecency-usage*
@@ -78,10 +77,12 @@ HOW IT WORKS                                   *fzf-lua-frecency-how-it-works*
   is scoped to the current working directory. - Files with a score of less
   than `0.95` (a file that hasn't been accessed in two days) are filtered out
   - these files will be grouped with the results of `fd` instead. Files that
-  are no longer available (i.e. deleted) are also filtered during this step.
-- When the picker is invoked, the `txt` file is read and it's content are
-  streamed into the UI. In parallel, the results from `fd` are also streamed
-  in.
+  are no longer available (i.e. deleted, renamed, moved) are also filtered
+  during this step.
+- When the picker is invoked, the `txt` file is read and its content are
+  streamed into the UI. After the frecent files are fully populated, the
+  results from `fd` are streamed in also. This ensures that the frecent files
+  appear first, while also incrementally populating the picker UI.
 
 ------------------------------------------------------------------------------
 DEPENDENCIES                                   *fzf-lua-frecency-dependencies*

@@ -124,7 +124,7 @@ M.frecency = function(opts)
     "2>/dev/null",
   }, " ")
 
-  local cmd = ("cat <(%s) <(%s)"):format(cat_cmd, fd_cmd)
+  local cmd = ("%s; %s"):format(cat_cmd, fd_cmd)
   fzf_lua.fzf_exec(cmd, fzf_exec_opts)
 end
 
