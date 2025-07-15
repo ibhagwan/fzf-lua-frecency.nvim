@@ -53,9 +53,21 @@ end
 
 --- @param num number
 --- @param decimals number
-M.truncate_num = function(num, decimals)
+M.max_decimals = function(num, decimals)
   local factor = 10 ^ decimals
   return math.floor(num * factor) / factor
+end
+
+--- @param num number
+--- @param decimals number
+M.min_decimals = function(num, decimals)
+  return string.format("%." .. decimals .. "f", num)
+end
+
+--- @param num number
+--- @param decimals number
+M.exact_decimals = function(num, decimals)
+  return M.min_decimals(M.max_decimals(num, decimals), decimals)
 end
 
 return M

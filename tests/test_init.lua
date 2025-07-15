@@ -2,8 +2,9 @@ local h = require "fzf-lua-frecency.helpers"
 local fzf_lua_frecency = require "fzf-lua-frecency.init"
 local fzf_lua = require "fzf-lua"
 
-local db_dir = vim.fs.joinpath(vim.fn.getcwd(), "test-init", "db-dir")
-local cwd = vim.fs.joinpath(vim.fn.getcwd(), "test-init", "files")
+local root_dir = vim.fs.joinpath(vim.fn.getcwd(), "test-init")
+local db_dir = vim.fs.joinpath(root_dir, "db-dir")
+local cwd = vim.fs.joinpath(root_dir, "files")
 local sorted_files_path = vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
 local dated_files_path = vim.fs.joinpath(db_dir, "dated-files.mpack")
 local existing_file_path = vim.fs.joinpath(db_dir, "existing-dir", "existing-file.txt")

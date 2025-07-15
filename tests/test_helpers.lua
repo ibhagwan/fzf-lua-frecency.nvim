@@ -22,14 +22,25 @@ T["#pad_str"]["pads string with spaces when shorter than len"] = function()
   MiniTest.expect.equality(h.pad_str("abc", 5), "  abc")
 end
 
-T["#truncate_num"] = MiniTest.new_set()
-T["#truncate_num"]["truncates number to given decimals"] = function()
-  MiniTest.expect.equality(h.truncate_num(3.14159, 2), 3.14)
-  MiniTest.expect.equality(h.truncate_num(3.19999, 1), 3.1)
+T["#max_decimals"] = MiniTest.new_set()
+T["#max_decimals"]["truncates to max decimals without rounding"] = function()
+  MiniTest.expect.equality(h.max_decimals(3.456, 2), 3.45)
+  MiniTest.expect.equality(h.max_decimals(9.999, 1), 9.9)
+  MiniTest.expect.equality(h.max_decimals(5, 3), 5.0)
 end
 
-T["#truncate_num"]["returns same number if no decimals"] = function()
-  MiniTest.expect.equality(h.truncate_num(42, 0), 42)
+T["#min_decimals"] = MiniTest.new_set()
+T["#min_decimals"]["formats number with minimum decimals"] = function()
+  MiniTest.expect.equality(h.min_decimals(3.4, 2), "3.40")
+  MiniTest.expect.equality(h.min_decimals(5, 3), "5.000")
+  MiniTest.expect.equality(h.min_decimals(2.71828, 1), "2.7")
+end
+
+T["#exact_decimals"] = MiniTest.new_set()
+T["#exact_decimals"]["truncates then formats to exact decimals"] = function()
+  MiniTest.expect.equality(h.exact_decimals(3.456, 2), "3.45")
+  MiniTest.expect.equality(h.exact_decimals(9.999, 1), "9.9")
+  MiniTest.expect.equality(h.exact_decimals(5, 3), "5.000")
 end
 
 return T

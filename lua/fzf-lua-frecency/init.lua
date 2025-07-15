@@ -20,6 +20,11 @@ local function get_dated_files_path(db_dir)
   return vim.fs.joinpath(db_dir, "dated-files.mpack")
 end
 
+--- @param db_dir string
+local function get_max_score_path(db_dir)
+  return vim.fs.joinpath(db_dir, "max-score.mpack")
+end
+
 --- @class FzfLuaFrecency
 --- @field debug boolean
 --- @field db_dir string the directory in which to persist frecency scores
@@ -49,6 +54,7 @@ M.frecency = function(opts)
   local fd_cmd = h.default(frecency_opts.fd_cmd, default_fd_cmd)
   local sorted_files_path = get_sorted_files_path(db_dir, cwd)
   local dated_files_path = get_dated_files_path(db_dir)
+  local max_score_path = get_max_score_path(db_dir)
   local now = os.time()
 
   local wrapped_enter = function(action)
@@ -62,6 +68,7 @@ M.frecency = function(opts)
             debug = debug,
             dated_files_path = dated_files_path,
             sorted_files_path = sorted_files_path,
+            max_score_path = max_score_path,
             cwd = cwd,
           })
         end
@@ -74,7 +81,9 @@ M.frecency = function(opts)
   local actions = vim.tbl_extend("force", fzf_lua.defaults.actions.files, {
     enter = wrapped_enter(fzf_lua.defaults.actions.files.enter),
   })
-  local dated_files = fs.read(dated_files_path)
+  local dated_files = fs.read(dated_files_path, {})
+  local max_score = fs.read(max_score_path, 0)
+  local max_score_len = #h.exact_decimals(max_score, 2)
   local seen = {}
 
   -- relevant options from the default `files` options
@@ -103,12 +112,12 @@ M.frecency = function(opts)
         end
 
         local formatted_score
-        if score == nil then
-          formatted_score = (" "):rep(6)
+        if max_score == 0 then
+          formatted_score = ""
+        elseif score == nil then
+          formatted_score = (" "):rep(max_score_len)
         else
-          local truncated_num = h.truncate_num(score, 2)
-          local with_min_decimals = string.format("%.2f", truncated_num)
-          formatted_score = h.pad_str(with_min_decimals, 6)
+          formatted_score = h.pad_str(h.exact_decimals(score, 2), max_score_len)
         end
         return ("%s %s"):format(formatted_score, entry)
       end

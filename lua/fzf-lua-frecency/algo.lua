@@ -47,6 +47,7 @@ end
 --- @field now? number
 --- @field sorted_files_path string
 --- @field dated_files_path string
+--- @field max_score_path string
 
 --- @param filename string
 --- @param opts AddFileScoreOpts
@@ -54,7 +55,8 @@ M.add_file_score = function(filename, opts)
   if not assert_field(filename, "filename")
       or not assert_field(opts, "opts")
       or not assert_field(opts.dated_files_path, "opts.dated_files_path")
-      or not assert_field(opts.sorted_files_path, "opts.sorted_files_path") then
+      or not assert_field(opts.sorted_files_path, "opts.sorted_files_path")
+      or not assert_field(opts.max_score_path, "opts.max_score_path") then
     return
   end
 
@@ -65,7 +67,7 @@ M.add_file_score = function(filename, opts)
     h.notify_debug_header("DEBUG: add_file_score %s", filename)
   end
 
-  local dated_files = fs.read(opts.dated_files_path)
+  local dated_files = fs.read(opts.dated_files_path, {})
   if not dated_files[cwd] then
     dated_files[cwd] = {}
   end
@@ -84,6 +86,7 @@ M.add_file_score = function(filename, opts)
   --- @type ScoredFile[]
   local scored_files = {}
   local updated_dated_files = {}
+  local max_score = 0
   for dated_file_entry, date_at_one_point_entry in pairs(dated_files[cwd]) do
     local recomputed_score = M.compute_score { now = now, date_at_score_one = date_at_one_point_entry, }
 
@@ -91,6 +94,7 @@ M.add_file_score = function(filename, opts)
     local readable = vim.fn.filereadable(dated_file_entry) == h.vimscript_true
 
     if readable and accessed_in_past_two_days then
+      max_score = math.max(max_score, recomputed_score)
       table.insert(scored_files, { filename = dated_file_entry, score = recomputed_score, })
       updated_dated_files[dated_file_entry] = date_at_one_point_entry
     end
@@ -99,6 +103,11 @@ M.add_file_score = function(filename, opts)
   fs.write {
     data = dated_files,
     path = opts.dated_files_path,
+    encode = true,
+  }
+  fs.write {
+    data = max_score,
+    path = opts.max_score_path,
     encode = true,
   }
 
