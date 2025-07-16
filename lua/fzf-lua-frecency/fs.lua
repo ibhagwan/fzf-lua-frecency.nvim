@@ -2,15 +2,12 @@ local h = require "fzf-lua-frecency.helpers"
 
 local M = {}
 
---- @generic T
 --- @param path string
---- @param default T
---- @return T
-M.read = function(path, default)
+M.read = function(path)
   -- io.open won't throw
   local file = io.open(path, "r")
   if file == nil then
-    return default
+    return {}
   end
 
   -- file:read won't throw
@@ -21,7 +18,7 @@ M.read = function(path, default)
   local decode_ok, decoded_data = pcall(vim.mpack.decode, encoded_data)
   if not decode_ok then
     h.notify_error("ERROR: vim.mpack.decode threw: %s", decoded_data)
-    return default
+    return {}
   end
   return decoded_data
 end

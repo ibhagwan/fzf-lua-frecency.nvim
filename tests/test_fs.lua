@@ -34,13 +34,13 @@ T["#read"] = MiniTest.new_set {
 }
 
 T["#read"]["returns empty table when file is missing"] = function()
-  MiniTest.expect.equality(fs.read(test_file, {}), {})
+  MiniTest.expect.equality(fs.read(test_file), {})
 end
 
 T["#read"]["returns decoded table when valid mpack"] = function()
   local data = { foo = "bar", num = 42, }
   write_file(test_file, vim.mpack.encode(data))
-  MiniTest.expect.equality(fs.read(test_file, {}), data)
+  MiniTest.expect.equality(fs.read(test_file), data)
 end
 
 T["#read"]["returns empty table and notifies on decode failure"] = function()
@@ -51,7 +51,7 @@ T["#read"]["returns empty table and notifies on decode failure"] = function()
 
   write_file(test_file, "not valid mpack")
 
-  local result = fs.read(test_file, {})
+  local result = fs.read(test_file)
   MiniTest.expect.equality(result, {})
   MiniTest.expect.equality(called_err, true)
 end

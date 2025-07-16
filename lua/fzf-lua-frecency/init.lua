@@ -21,8 +21,8 @@ local function get_dated_files_path(db_dir)
 end
 
 --- @param db_dir string
-local function get_max_score_path(db_dir)
-  return vim.fs.joinpath(db_dir, "max-score.mpack")
+local function get_max_scores_path(db_dir)
+  return vim.fs.joinpath(db_dir, "max-scores.mpack")
 end
 
 --- @class FzfLuaFrecency
@@ -54,7 +54,7 @@ M.frecency = function(opts)
   local fd_cmd = h.default(frecency_opts.fd_cmd, default_fd_cmd)
   local sorted_files_path = get_sorted_files_path(db_dir, cwd)
   local dated_files_path = get_dated_files_path(db_dir)
-  local max_score_path = get_max_score_path(db_dir)
+  local max_scores_path = get_max_scores_path(db_dir)
   local now = os.time()
 
   local wrapped_enter = function(action)
@@ -68,7 +68,7 @@ M.frecency = function(opts)
             debug = debug,
             dated_files_path = dated_files_path,
             sorted_files_path = sorted_files_path,
-            max_score_path = max_score_path,
+            max_scores_path = max_scores_path,
             cwd = cwd,
           })
         end
@@ -81,8 +81,9 @@ M.frecency = function(opts)
   local actions = vim.tbl_extend("force", fzf_lua.defaults.actions.files, {
     enter = wrapped_enter(fzf_lua.defaults.actions.files.enter),
   })
-  local dated_files = fs.read(dated_files_path, {})
-  local max_score = fs.read(max_score_path, 0)
+  local dated_files = fs.read(dated_files_path)
+  local max_scores = fs.read(max_scores_path)
+  local max_score = h.default(max_scores[cwd], 0)
   local max_score_len = #h.exact_decimals(max_score, 2)
   local seen = {}
 

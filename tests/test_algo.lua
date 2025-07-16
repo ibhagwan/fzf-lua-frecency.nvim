@@ -7,7 +7,7 @@ local db_dir = vim.fs.joinpath(root_dir, "db-dir")
 local cwd = vim.fs.joinpath(root_dir, "files")
 local sorted_files_path = vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
 local dated_files_path = vim.fs.joinpath(db_dir, "dated-files.mpack")
-local max_score_path = vim.fs.joinpath(db_dir, "max-score.mpack")
+local max_scores_path = vim.fs.joinpath(db_dir, "max-scores.mpack")
 local test_file_a = vim.fs.joinpath(cwd, "test-file-a.txt")
 local test_file_b = vim.fs.joinpath(cwd, "test-file-b.txt")
 
@@ -72,7 +72,7 @@ T["#add_file_score"]["missing fields"]["throws when missing opts"] = function()
 
   algo.add_file_score(test_file_a)
   MiniTest.expect.equality(called_err, true)
-  MiniTest.expect.equality(fs.read(dated_files_path, {})[cwd], nil)
+  MiniTest.expect.equality(fs.read(dated_files_path)[cwd], nil)
   MiniTest.expect.equality(read_sorted(), "")
 end
 
@@ -84,10 +84,10 @@ T["#add_file_score"]["missing fields"]["throws when missing opts.sorted_files_pa
 
   algo.add_file_score(test_file_a, {
     dated_files_path = dated_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
   MiniTest.expect.equality(called_err, true)
-  MiniTest.expect.equality(fs.read(dated_files_path, {})[cwd], nil)
+  MiniTest.expect.equality(fs.read(dated_files_path)[cwd], nil)
   MiniTest.expect.equality(read_sorted(), "")
 end
 
@@ -99,14 +99,14 @@ T["#add_file_score"]["missing fields"]["throws when missing opts.dated_files_pat
 
   algo.add_file_score(test_file_a, {
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
   MiniTest.expect.equality(called_err, true)
-  MiniTest.expect.equality(fs.read(dated_files_path, {})[cwd], nil)
+  MiniTest.expect.equality(fs.read(dated_files_path)[cwd], nil)
   MiniTest.expect.equality(read_sorted(), "")
 end
 
-T["#add_file_score"]["missing fields"]["throws when missing opts.max_score_path"] = function()
+T["#add_file_score"]["missing fields"]["throws when missing opts.max_scores_path"] = function()
   local called_err = false
   h.notify_error = function(msg)
     called_err = msg:find "ERROR: missing " ~= nil
@@ -117,7 +117,7 @@ T["#add_file_score"]["missing fields"]["throws when missing opts.max_score_path"
     dated_files_path = dated_files_path,
   })
   MiniTest.expect.equality(called_err, true)
-  MiniTest.expect.equality(fs.read(dated_files_path, {})[cwd], nil)
+  MiniTest.expect.equality(fs.read(dated_files_path)[cwd], nil)
   MiniTest.expect.equality(read_sorted(), "")
 end
 
@@ -127,14 +127,14 @@ T["#add_file_score"]["adds score entry for new file"] = function()
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
-  local dated_files = fs.read(dated_files_path, {})
+  local dated_files = fs.read(dated_files_path)
   local date_at_score_one = dated_files[cwd][test_file_a]
   MiniTest.expect.equality(date_at_score_one, date_at_score_one_now)
   MiniTest.expect.equality(read_sorted(), test_file_a .. "\n")
-  MiniTest.expect.equality(fs.read(max_score_path, 0), score_when_adding)
+  MiniTest.expect.equality(fs.read(max_scores_path)[cwd], score_when_adding)
 end
 
 T["#add_file_score"]["increments score on repeated calls"] = function()
@@ -143,11 +143,11 @@ T["#add_file_score"]["increments score on repeated calls"] = function()
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     date_at_score_one_now
   )
 
@@ -156,15 +156,15 @@ T["#add_file_score"]["increments score on repeated calls"] = function()
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_decayed_after_30_min + 1, }
   )
   -- TODO: precision issue, values are the same
-  -- MiniTest.expect.equality(fs.read(max_score_path, 0), score_decayed_after_30_min + 1)
+  -- MiniTest.expect.equality(fs.read(max_scores_path, 0), score_decayed_after_30_min + 1)
 end
 
 T["#add_file_score"]["recalculates all scores when adding a new file"] = function()
@@ -173,11 +173,11 @@ T["#add_file_score"]["recalculates all scores when adding a new file"] = functio
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     date_at_score_one_now
   )
 
@@ -186,19 +186,19 @@ T["#add_file_score"]["recalculates all scores when adding a new file"] = functio
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_decayed_after_30_min, }
   )
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_b],
+    fs.read(dated_files_path)[cwd][test_file_b],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
   )
   MiniTest.expect.equality(read_sorted(), test_file_b .. "\n" .. test_file_a .. "\n")
-  MiniTest.expect.equality(fs.read(max_score_path, 0), 1)
+  MiniTest.expect.equality(fs.read(max_scores_path)[cwd], 1)
 end
 
 T["#add_file_score"]["filters files lower than 0.95"] = function()
@@ -207,11 +207,11 @@ T["#add_file_score"]["filters files lower than 0.95"] = function()
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     date_at_score_one_now
   )
 
@@ -220,19 +220,19 @@ T["#add_file_score"]["filters files lower than 0.95"] = function()
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     nil
   )
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_b],
+    fs.read(dated_files_path)[cwd][test_file_b],
     algo.compute_date_at_score_one { now = now_after_3_days, score = score_when_adding, }
   )
   MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
-  MiniTest.expect.equality(fs.read(max_score_path, 0), 1)
+  MiniTest.expect.equality(fs.read(max_scores_path)[cwd], 1)
 end
 
 T["#add_file_score"]["filters deleted files"] = function()
@@ -241,11 +241,11 @@ T["#add_file_score"]["filters deleted files"] = function()
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     date_at_score_one_now
   )
 
@@ -256,19 +256,19 @@ T["#add_file_score"]["filters deleted files"] = function()
     cwd = cwd,
     dated_files_path = dated_files_path,
     sorted_files_path = sorted_files_path,
-    max_score_path = max_score_path,
+    max_scores_path = max_scores_path,
   })
 
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_a],
+    fs.read(dated_files_path)[cwd][test_file_a],
     nil
   )
   MiniTest.expect.equality(
-    fs.read(dated_files_path, {})[cwd][test_file_b],
+    fs.read(dated_files_path)[cwd][test_file_b],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
   )
   MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
-  MiniTest.expect.equality(fs.read(max_score_path, 0), 1)
+  MiniTest.expect.equality(fs.read(max_scores_path)[cwd], 1)
 end
 
 return T

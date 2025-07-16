@@ -12,7 +12,7 @@ local _get_pretty_date = function(date_in_sec)
 end
 
 --- @class ComputeScore
---- @field date_at_score_one number an os.time date
+--- @field date_at_score_one number an os.time date. the date in seconds when the score decays to 1
 --- @field now number an os.time date
 
 --- @param opts ComputeScore
@@ -47,7 +47,7 @@ end
 --- @field now? number
 --- @field sorted_files_path string
 --- @field dated_files_path string
---- @field max_score_path string
+--- @field max_scores_path string
 
 --- @param filename string
 --- @param opts AddFileScoreOpts
@@ -56,7 +56,7 @@ M.add_file_score = function(filename, opts)
       or not assert_field(opts, "opts")
       or not assert_field(opts.dated_files_path, "opts.dated_files_path")
       or not assert_field(opts.sorted_files_path, "opts.sorted_files_path")
-      or not assert_field(opts.max_score_path, "opts.max_score_path") then
+      or not assert_field(opts.max_scores_path, "opts.max_scores_path") then
     return
   end
 
@@ -67,7 +67,7 @@ M.add_file_score = function(filename, opts)
     h.notify_debug_header("DEBUG: add_file_score %s", filename)
   end
 
-  local dated_files = fs.read(opts.dated_files_path, {})
+  local dated_files = fs.read(opts.dated_files_path)
   if not dated_files[cwd] then
     dated_files[cwd] = {}
   end
@@ -105,9 +105,11 @@ M.add_file_score = function(filename, opts)
     path = opts.dated_files_path,
     encode = true,
   }
+  local max_scores = fs.read(opts.max_scores_path)
+  max_scores[cwd] = max_score
   fs.write {
-    data = max_score,
-    path = opts.max_score_path,
+    data = max_scores,
+    path = opts.max_scores_path,
     encode = true,
   }
 
