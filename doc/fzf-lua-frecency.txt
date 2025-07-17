@@ -20,6 +20,10 @@ that ranks files based on how frequently and recently they're accessed.
 Implements a variant <https://wiki.mozilla.org/User:Jesse/NewFrecency> of
 Mozilla's frecency algorithm.
 
+  NOTE: There are changes in the latest version of `fzf-lua` that break this
+  plugin. Use the commit `e297fea843bd703b162894e880d2ba90b1fe9dae` when
+  installing `fzf-lua` in the meantime.
+
 
 ------------------------------------------------------------------------------
 PERFORMANCE                                     *fzf-lua-frecency-performance*

@@ -4,6 +4,8 @@ A frecency-based file picker for [fzf-lua](https://github.com/ibhagwan/fzf-lua) 
 
 Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozilla's frecency algorithm.
 
+> NOTE: There are changes in the latest version of `fzf-lua` that break this plugin. Use the commit `e297fea843bd703b162894e880d2ba90b1fe9dae` when installing `fzf-lua` in the meantime.
+
 ## Performance
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
