@@ -92,7 +92,6 @@ M.frecency = function(opts)
   local default_opts = {
     actions      = actions,
     previewer    = "builtin",
-    multiprocess = true,
     file_icons   = true,
     color_icons  = true,
     git_icons    = false,
