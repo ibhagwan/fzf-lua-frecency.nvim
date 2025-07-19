@@ -2,6 +2,8 @@
 
 A frecency-based file picker for [fzf-lua](https://github.com/ibhagwan/fzf-lua) that ranks files based on how frequently and recently they're accessed.
 
+![demo](https://elanmed.dev/nvim-plugins/fzf-lua-frecency.png)
+
 Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozilla's frecency algorithm.
 
 ## Performance

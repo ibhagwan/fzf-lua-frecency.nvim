@@ -1,4 +1,4 @@
-*fzf-lua-frecency.txt*                               Last change: 2025 July 17
+*fzf-lua-frecency.txt*                               Last change: 2025 July 18
 
 ==============================================================================
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
@@ -16,6 +16,8 @@ FZF-LUA-FRECENCY.NVIM                 *fzf-lua-frecency-fzf-lua-frecency.nvim*
 
 A frecency-based file picker for fzf-lua <https://github.com/ibhagwan/fzf-lua>
 that ranks files based on how frequently and recently they're accessed.
+
+demo <https://elanmed.dev/nvim-plugins/fzf-lua-frecency.png>
 
 Implements a variant <https://wiki.mozilla.org/User:Jesse/NewFrecency> of
 Mozilla's frecency algorithm.
