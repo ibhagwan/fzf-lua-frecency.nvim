@@ -154,9 +154,14 @@ M.update_file_score = function(filename, opts)
   end
 
   local scored_files_list = vim.tbl_map(function(scored_file) return scored_file.filename end, scored_files)
+  local sorted_files_str = table.concat(scored_files_list, "\n")
+  if #sorted_files_str > 0 then
+    sorted_files_str = sorted_files_str .. "\n"
+  end
+
   fs.write {
     path = opts.sorted_files_path,
-    data = table.concat(scored_files_list, "\n") .. "\n",
+    data = sorted_files_str,
     encode = false,
   }
 end

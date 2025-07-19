@@ -157,9 +157,8 @@ M.frecency = function(opts)
     "2>/dev/null",
   }, " ")
 
-  -- https://stackoverflow.com/a/11532197
-  local dedupe = "awk '!x[$0]++'"
-  local cmd = ("(%s; %s) | %s"):format(cat_cmd, fd_cmd, dedupe)
+  local awk_cmd = "awk '!x[$0]++'" -- https://stackoverflow.com/a/11532198
+  local cmd = ("(%s; %s) | %s"):format(cat_cmd, fd_cmd, awk_cmd)
   fzf_lua.fzf_exec(cmd, fzf_exec_opts)
 end
 
