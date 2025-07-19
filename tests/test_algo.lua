@@ -325,7 +325,7 @@ T["#update_file_score"]["update_type=remove"]["adds entry for existing file"] = 
   })
 
   MiniTest.expect.equality(fs.read(dated_files_path)[cwd][test_file_a], nil)
-  MiniTest.expect.equality(read_sorted(), "\n")
+  MiniTest.expect.equality(read_sorted(), "")
   MiniTest.expect.equality(fs.read(max_scores_path)[cwd], 0)
 end
 

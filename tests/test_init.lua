@@ -5,8 +5,9 @@ local fzf_lua = require "fzf-lua"
 local root_dir = vim.fs.joinpath(vim.fn.getcwd(), "test-init")
 local db_dir = vim.fs.joinpath(root_dir, "db-dir")
 local cwd = vim.fs.joinpath(root_dir, "files")
-local sorted_files_path = vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
-local dated_files_path = vim.fs.joinpath(db_dir, "dated-files.mpack")
+local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
+local dated_files_path = h.get_dated_files_path(db_dir)
+local max_scores_path = h.get_max_scores_path(db_dir)
 local existing_file_path = vim.fs.joinpath(db_dir, "existing-dir", "existing-file.txt")
 
 local fzf_lua_fzf_exec = fzf_lua.fzf_exec
@@ -57,19 +58,24 @@ end
 T["#clear_db"] = MiniTest.new_set {
   hooks = {
     pre_case = function()
-      write_file(sorted_files_path, vim.mpack.encode { foo = "bar", num = 42, })
-      write_file(dated_files_path, vim.mpack.encode { foo = "bar", num = 42, })
-      write_file(existing_file_path, vim.mpack.encode { foo = "bar", num = 42, })
+      local now = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 0, sec = 0, }
+      local now_after_30_min = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 30, sec = 0, }
+
+      write_file(sorted_files_path, "file_1.txt\nfile")
+      write_file(dated_files_path, vim.mpack.encode { [cwd] = { file_1 = now, file_2 = now_after_30_min, }, })
+      write_file(max_scores_path, vim.mpack.encode { [cwd] = { 1, }, })
+      write_file(existing_file_path, "existing content")
     end,
     post_case = function()
       os.remove(sorted_files_path)
       os.remove(dated_files_path)
+      os.remove(max_scores_path)
       os.remove(existing_file_path)
     end,
   },
 
 }
-T["#clear_db"]["deletes the cwd dir, dated-files.mpack, and nothing else"] = function()
+T["#clear_db"]["deletes the cwd dir, dated-files.mpack, max-scores.mpack, and nothing else"] = function()
   MiniTest.expect.equality(
     vim.fn.filereadable(sorted_files_path),
     h.vimscript_true
@@ -80,6 +86,10 @@ T["#clear_db"]["deletes the cwd dir, dated-files.mpack, and nothing else"] = fun
   )
   MiniTest.expect.equality(
     vim.fn.filereadable(existing_file_path),
+    h.vimscript_true
+  )
+  MiniTest.expect.equality(
+    vim.fn.filereadable(max_scores_path),
     h.vimscript_true
   )
 
@@ -93,6 +103,10 @@ T["#clear_db"]["deletes the cwd dir, dated-files.mpack, and nothing else"] = fun
   )
   MiniTest.expect.equality(
     vim.fn.filereadable(dated_files_path),
+    h.vimscript_false
+  )
+  MiniTest.expect.equality(
+    vim.fn.filereadable(max_scores_path),
     h.vimscript_false
   )
   MiniTest.expect.equality(
