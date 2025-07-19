@@ -70,4 +70,51 @@ M.exact_decimals = function(num, decimals)
   return M.min_decimals(M.max_decimals(num, decimals), decimals)
 end
 
+M.get_default_db_dir = function()
+  return vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")
+end
+
+--- @param db_dir string
+--- @param cwd string
+M.get_sorted_files_path = function(db_dir, cwd)
+  return vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
+end
+
+--- @param db_dir string
+M.get_dated_files_path = function(db_dir)
+  return vim.fs.joinpath(db_dir, "dated-files.mpack")
+end
+
+--- @param db_dir string
+M.get_max_scores_path = function(db_dir)
+  return vim.fs.joinpath(db_dir, "max-scores.mpack")
+end
+
+--- @param opts FrecencyFnOpts
+M.get_defaulted_frecency_opts = function(opts)
+  opts = opts or {}
+  local cwd = M.default(opts.cwd, vim.fn.getcwd())
+  local frecency_opts = M.default(opts.fzf_lua_frecency, {})
+  local display_score = M.default(frecency_opts.display_score, false)
+  local debug = M.default(frecency_opts.debug, false)
+  local db_dir = M.default(frecency_opts.db_dir, M.get_default_db_dir())
+  local default_fd_cmd = table.concat({
+    "fd",
+    "--absolute-path",
+    "--type", "f",
+    "--type", "l",
+    "--exclude", ".git",
+    "--base-directory", cwd,
+  }, " ")
+  local fd_cmd = M.default(frecency_opts.fd_cmd, default_fd_cmd)
+
+  return {
+    cwd = cwd,
+    display_score = display_score,
+    debug = debug,
+    db_dir = db_dir,
+    fd_cmd = fd_cmd,
+  }
+end
+
 return M
