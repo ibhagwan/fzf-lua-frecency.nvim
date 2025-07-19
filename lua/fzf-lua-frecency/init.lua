@@ -63,13 +63,14 @@ M.frecency = function(opts)
         for _, sel in ipairs(selected) do
           -- based on https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
           local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
-          algo.add_file_score(filename, {
+          algo.update_file_score(filename, {
             now = now,
             debug = debug,
             dated_files_path = dated_files_path,
             sorted_files_path = sorted_files_path,
             max_scores_path = max_scores_path,
             cwd = cwd,
+            update_type = "increase",
           })
         end
       end)
@@ -78,14 +79,27 @@ M.frecency = function(opts)
     end
   end
 
-  local actions = vim.tbl_extend("force", fzf_lua.defaults.actions.files, {
+  local actions = vim.tbl_deep_extend("force", fzf_lua.defaults.actions.files, {
     enter = wrapped_enter(fzf_lua.defaults.actions.files.enter),
+    ["ctrl-x"] = {
+      fn = function(selected, action_opts)
+        for _, sel in ipairs(selected) do
+          local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
+          algo.update_file_score(filename, {
+            now = now,
+            debug = debug,
+            dated_files_path = dated_files_path,
+            sorted_files_path = sorted_files_path,
+            max_scores_path = max_scores_path,
+            cwd = cwd,
+            update_type = "remove",
+          })
+        end
+      end,
+      reload = true,
+    },
   })
-  local dated_files = fs.read(dated_files_path)
-  local max_scores = fs.read(max_scores_path)
-  local max_score = h.default(max_scores[cwd], 0)
-  local max_score_len = #h.exact_decimals(max_score, 2)
-  local seen = {}
+
 
   -- relevant options from the default `files` options
   -- https://github.com/ibhagwan/fzf-lua/blob/f972ad787ee8d3646d30000a0652e9b168a90840/lua/fzf-lua/defaults.lua#L336-L360
@@ -95,11 +109,21 @@ M.frecency = function(opts)
     file_icons   = true,
     color_icons  = true,
     git_icons    = false,
-    fzf_opts     = { ["--multi"] = true, ["--scheme"] = "path", ["--no-sort"] = true, },
+    fzf_opts     = {
+      ["--multi"] = true,
+      ["--scheme"] = "path",
+      ["--no-sort"] = true,
+      ["--header"] = (":: <%s> to %s"):format(
+        fzf_lua.utils.ansi_from_hl("FzfLuaHeaderBind", "ctrl-x"),
+        fzf_lua.utils.ansi_from_hl("FzfLuaHeaderText", "delete a frecency score")
+      ),
+    },
     winopts      = { preview = { winopts = { cursorline = false, }, }, },
     fn_transform = function(abs_file)
-      if seen[abs_file] then return end
-      seen[abs_file] = true
+      local dated_files = fs.read(dated_files_path)
+      local max_scores = fs.read(max_scores_path)
+      local max_score = h.default(max_scores[cwd], 0)
+      local max_score_len = #h.exact_decimals(max_score, 2)
 
       local rel_file = vim.fs.relpath(cwd, abs_file)
       local entry = fzf_lua.make_entry.file(rel_file, opts)
@@ -125,7 +149,7 @@ M.frecency = function(opts)
       return entry
     end,
   }
-  local fzf_exec_opts = vim.tbl_extend("force", default_opts, opts)
+  local fzf_exec_opts = vim.tbl_deep_extend("force", default_opts, opts)
 
   local cat_cmd = table.concat({
     "cat",
@@ -133,7 +157,9 @@ M.frecency = function(opts)
     "2>/dev/null",
   }, " ")
 
-  local cmd = ("%s; %s"):format(cat_cmd, fd_cmd)
+  -- https://stackoverflow.com/a/11532197
+  local dedupe = "awk '!x[$0]++'"
+  local cmd = ("(%s; %s) | %s"):format(cat_cmd, fd_cmd, dedupe)
   fzf_lua.fzf_exec(cmd, fzf_exec_opts)
 end
 

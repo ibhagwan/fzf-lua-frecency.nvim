@@ -6,8 +6,9 @@ local M = {}
 local half_life_sec = 30 * 24 * 60 * 60
 local decay_rate = math.log(2) / half_life_sec
 
---- @param date_in_sec number
+--- @param date_in_sec number | nil
 local _get_pretty_date = function(date_in_sec)
+  if not date_in_sec then return "nil" end
   return os.date("%Y-%m-%d %H:%M:%S", date_in_sec)
 end
 
@@ -41,19 +42,21 @@ end
 --- @field score number
 --- @field filename string
 
---- @class AddFileScoreOpts
+--- @class UpdateFileScoreOpts
 --- @field debug? boolean
 --- @field cwd? string
 --- @field now? number
 --- @field sorted_files_path string
 --- @field dated_files_path string
 --- @field max_scores_path string
+--- @field update_type "increase" | "remove"
 
 --- @param filename string
---- @param opts AddFileScoreOpts
-M.add_file_score = function(filename, opts)
+--- @param opts UpdateFileScoreOpts
+M.update_file_score = function(filename, opts)
   if not assert_field(filename, "filename")
       or not assert_field(opts, "opts")
+      or not assert_field(opts.update_type, "opts.update_type")
       or not assert_field(opts.dated_files_path, "opts.dated_files_path")
       or not assert_field(opts.sorted_files_path, "opts.sorted_files_path")
       or not assert_field(opts.max_scores_path, "opts.max_scores_path") then
@@ -64,7 +67,10 @@ M.add_file_score = function(filename, opts)
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local debug = h.default(opts.debug, false)
   if debug then
-    h.notify_debug_header("DEBUG: add_file_score %s", filename)
+    h.notify_debug_header("DEBUG: update_file_score %s", filename)
+    h.notify_debug("opts.update_type: %s", opts.update_type)
+    h.notify_debug("now: %s", _get_pretty_date(now))
+    h.notify_debug("cwd: %s", cwd)
   end
 
   local dated_files = fs.read(opts.dated_files_path)
@@ -72,13 +78,35 @@ M.add_file_score = function(filename, opts)
     dated_files[cwd] = {}
   end
 
-  local score = 0
-  local date_at_score_one = dated_files[cwd][filename]
-  if date_at_score_one then
-    score = M.compute_score { now = now, date_at_score_one = date_at_score_one, }
+  if debug then
+    h.notify_debug("dated_files: %s", vim.inspect(dated_files))
   end
-  local updated_score = score + 1
-  local updated_date_at_score_one = M.compute_date_at_score_one { now = now, score = updated_score, }
+
+  local updated_date_at_score_one
+  if opts.update_type == "increase" then
+    local score = 0
+    local date_at_score_one = dated_files[cwd][filename]
+    if date_at_score_one then
+      score = M.compute_score { now = now, date_at_score_one = date_at_score_one, }
+    end
+    local updated_score = score + 1
+    updated_date_at_score_one = M.compute_date_at_score_one { now = now, score = updated_score, }
+
+    if debug then
+      h.notify_debug(
+        "date_at_score_one: %s",
+        date_at_score_one and _get_pretty_date(date_at_score_one) or "no date_at_score_one"
+      )
+      h.notify_debug("score: %s", score)
+      h.notify_debug("updated_score: %s", updated_score)
+    end
+  else
+    updated_date_at_score_one = nil
+  end
+
+  if debug then
+    h.notify_debug("updated_date_at_score_one: %s", _get_pretty_date(updated_date_at_score_one))
+  end
 
   dated_files[cwd][filename] = updated_date_at_score_one
   fs.write { path = opts.dated_files_path, data = dated_files, encode = true, }
@@ -114,21 +142,17 @@ M.add_file_score = function(filename, opts)
   }
 
   if debug then
-    h.notify_debug("now: %s", _get_pretty_date(now))
-    h.notify_debug("dated_files: %s", vim.inspect(dated_files))
-    h.notify_debug(
-      "date_at_score_one: %s",
-      date_at_score_one and _get_pretty_date(date_at_score_one) or "no date_at_score_one"
-    )
-    h.notify_debug("score: %s", score)
-    h.notify_debug("updated_score: %s", updated_score)
-    h.notify_debug("updated_date_at_score_one: %s", _get_pretty_date(updated_date_at_score_one))
     h.notify_debug("scored_files before sort: %s", vim.inspect(scored_files))
   end
 
   table.sort(scored_files, function(a, b)
     return a.score > b.score
   end)
+
+  if debug then
+    h.notify_debug("scored_files after sort: %s", vim.inspect(scored_files))
+  end
+
   local scored_files_list = vim.tbl_map(function(scored_file) return scored_file.filename end, scored_files)
   fs.write {
     path = opts.sorted_files_path,

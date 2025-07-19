@@ -59,4 +59,4 @@ require('fzf-lua-frecency').clear_db({
 
 ## TODO
 - [ ] User commands
-- [ ] Function to remove a specific file in a cwd, corresponding fzf-lua action
+- [ ] Enable `multiprocess=true`
