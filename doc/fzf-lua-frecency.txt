@@ -5,6 +5,7 @@ Table of Contents                         *fzf-lua-frecency-table-of-contents*
 
 Performance ................................... |fzf-lua-frecency-performance|
 Usage ............................................... |fzf-lua-frecency-usage|
+Default `fzf-lua` opts ............. |fzf-lua-frecency-default-`fzf-lua`-opts|
 How it works ................................. |fzf-lua-frecency-how-it-works|
 Dependencies ................................. |fzf-lua-frecency-dependencies|
 Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
@@ -59,6 +60,50 @@ USAGE                                                 *fzf-lua-frecency-usage*
     require('fzf-lua-frecency').clear_db({
        -- defaults:
        db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+    })
+<
+
+------------------------------------------------------------------------------
+DEFAULT `FZF-LUA` OPTS               *fzf-lua-frecency-default-`fzf-lua`-opts*
+
+
+By default, the following options are passed along to `fzf_lua.fzf_exec`:
+
+>lua
+    local opts = {
+      -- the default actions for fzf_lua.files, with:
+      -- 1. the default ["enter"] action wrapped to also update a frecence score
+      -- 2. an additional ["ctrl-x"] action to remove a file's frecency score
+      actions      = actions, 
+      previewer    = "builtin",
+      file_icons   = true,
+      color_icons  = true,
+      git_icons    = false,
+      fzf_opts     = {
+        ["--multi"] = true,
+        ["--scheme"] = "path",
+        ["--no-sort"] = true,
+        ["--header"] = (":: <%s> to %s"):format(
+          fzf_lua.utils.ansi_from_hl("FzfLuaHeaderBind", "ctrl-x"),
+          fzf_lua.utils.ansi_from_hl("FzfLuaHeaderText", "delete a frecency score")
+        ),
+      },
+      winopts      = { preview = { winopts = { cursorline = false, }, }, },
+      fn_transform = function(abs_file)
+        local entry = fzf_lua.make_entry.file(rel_file, opts)
+        -- ...
+        -- prepends the frecency score if `display_score` is true
+        -- ...
+        return entry
+      end,
+    }
+<
+Any of the default options can be overriden by passing in your own option:
+
+>lua
+    require('fzf-lua-frecency').frecency({
+      file_icons   = false,
+      color_icons  = false,
     })
 <
 
