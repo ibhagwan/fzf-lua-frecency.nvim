@@ -12,7 +12,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 - Frecency scores are computed and sorted when a file is selected from the picker, _not_ when populating the picker UI.
 - Scores are stored separately for each working directory (`cwd`). This avoids filtering irrelevant files when populating the picker UI.
 - The picker UI opens instantly, with frecency-ranked files and `fd` results streaming in over time.
-- Files are processed for the picker UI by headless Neovim instances (`fzf-lua`'s `multiprocess=true` option). `fzf-lua-frecency` uses RPC requests to pull user configuration options into the headless instances when needed.
+- Files are processed for the picker UI by headless Neovim instances (`fzf-lua`'s `multiprocess=true` option). `fzf-lua-frecency` uses string interpolation to pull user configuration options into the headless instances when needed.
 
 ## Usage
 

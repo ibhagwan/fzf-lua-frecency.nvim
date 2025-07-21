@@ -37,9 +37,9 @@ PERFORMANCE                                     *fzf-lua-frecency-performance*
 - The picker UI opens instantly, with frecency-ranked files and `fd` results
   streaming in over time.
 - Files are processed for the picker UI by headless Neovim instances
-  (`fzf-lua`'s `multiprocess=true` option). `fzf-lua-frecency` uses RPC
-  requests to pull user configuration options into the headless instances when
-  needed.
+  (`fzf-lua`'s `multiprocess=true` option). `fzf-lua-frecency` uses string
+  interpolation to pull user configuration options into the headless instances
+  when needed.
 
 ------------------------------------------------------------------------------
 USAGE                                                 *fzf-lua-frecency-usage*

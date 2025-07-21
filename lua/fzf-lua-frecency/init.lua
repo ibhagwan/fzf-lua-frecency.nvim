@@ -1,7 +1,5 @@
 local M = {}
 
-vim.fn.setenv("FZF_LUA_FRECENCY_SERVER", vim.v.servername)
-
 --- @class FzfLuaFrecencyTbl
 --- @field debug boolean
 --- @field db_dir string the directory in which to persist frecency scores
@@ -15,7 +13,6 @@ vim.fn.setenv("FZF_LUA_FRECENCY_SERVER", vim.v.servername)
 --- @param opts FrecencyFnOpts
 M.frecency = function(opts)
   opts = opts or {}
-  require "fzf-lua-frecency.rpc_state".opts = opts
   local h = require "fzf-lua-frecency.helpers"
 
   local defaulted_opts = h.get_defaulted_frecency_opts(opts)
@@ -35,6 +32,7 @@ M.frecency = function(opts)
       vim.schedule(function()
         local now = os.time()
         for _, sel in ipairs(selected) do
+          -- TODO: remove dependency on fzf-lua internal fn
           -- based on https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
           local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
           algo.update_file_score(filename, {
@@ -75,15 +73,31 @@ M.frecency = function(opts)
     },
   })
 
+  -- RPC worked fine on linux, be was hanging on mac - specifically vim.rpcrequest
+  -- using basic string interpolation works well since all the opts that are used can be stringified
+  local fn_transform_str = string.format([[
+    local abs_file = ...
+    local rpc_opts = vim.mpack.decode(%q)
+    return require "fzf-lua-frecency.fn_transform".get_fn_transform(rpc_opts)(abs_file)
+  ]], vim.mpack.encode(opts))
+
+  local fn_transform
+  local fn_transform_ok, fn_transform_res = pcall(loadstring, fn_transform_str)
+  if fn_transform_ok then
+    fn_transform = fn_transform_res
+  else
+    fn_transform = function(file) return require "fzf-lua".make_entry.file(file) end
+  end
+
   -- relevant options from the default `files` options
   -- https://github.com/ibhagwan/fzf-lua/blob/f972ad787ee8d3646d30000a0652e9b168a90840/lua/fzf-lua/defaults.lua#L336-L360
   local default_opts = {
-    actions      = actions,
-    previewer    = "builtin",
-    file_icons   = true,
-    color_icons  = true,
-    git_icons    = false,
-    fzf_opts     = {
+    actions = actions,
+    previewer = "builtin",
+    file_icons = true,
+    color_icons = true,
+    git_icons = false,
+    fzf_opts = {
       ["--multi"] = true,
       ["--scheme"] = "path",
       ["--no-sort"] = true,
@@ -92,26 +106,13 @@ M.frecency = function(opts)
         fzf_lua.utils.ansi_from_hl("FzfLuaHeaderText", "delete a frecency score")
       ),
     },
-    winopts      = {
+    winopts = {
       preview = {
         winopts = { cursorline = false, },
       },
     },
     multiprocess = true,
-    fn_transform = function(abs_file)
-      local ok, rpc_opts = pcall(function()
-        local chan = vim.fn.sockconnect("pipe", vim.fn.getenv "FZF_LUA_FRECENCY_SERVER", { rpc = true, })
-        local rpc_response = vim.rpcrequest(chan, "nvim_exec_lua", 'return require "fzf-lua-frecency.rpc_state".opts', {})
-        vim.fn.chanclose(chan)
-        return rpc_response
-      end)
-
-      if not ok then
-        return require "fzf-lua".make_entry.file(abs_file)
-      end
-
-      return require "fzf-lua-frecency.fn_transform".get_fn_transform(rpc_opts)(abs_file)
-    end,
+    fn_transform = fn_transform,
   }
   local fzf_exec_opts = vim.tbl_deep_extend("force", default_opts, opts)
 
@@ -121,7 +122,7 @@ M.frecency = function(opts)
     "2>/dev/null",
   }, " ")
 
-  local awk_cmd = "awk '!x[$0]++'"                             -- https://stackoverflow.com/a/11532198
+  local awk_cmd = "awk '!x[$0]++'" -- https://stackoverflow.com/a/11532198
   local cmd = ("(%s; %s) | %s"):format(cat_cmd, fd_cmd, awk_cmd)
   fzf_lua.fzf_exec(cmd, fzf_exec_opts)
 end
