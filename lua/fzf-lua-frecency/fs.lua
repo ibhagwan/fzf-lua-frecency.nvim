@@ -1,5 +1,3 @@
-local h = require "fzf-lua-frecency.helpers"
-
 local M = {}
 
 --- @param path string
@@ -13,6 +11,8 @@ M.read = function(path)
   -- file:read won't throw
   local encoded_data = file:read "*a"
   file:close()
+
+  local h = require "fzf-lua-frecency.helpers"
 
   -- vim.mpack.decode will throw
   local decode_ok, decoded_data = pcall(vim.mpack.decode, encoded_data)
@@ -31,6 +31,7 @@ end
 --- @param opts WriteOpts
 --- @return nil
 M.write = function(opts)
+  local h = require "fzf-lua-frecency.helpers"
   -- vim.fn.mkdir won't throw
   local path_dir = vim.fs.dirname(opts.path)
   local mkdir_res = vim.fn.mkdir(path_dir, "p")

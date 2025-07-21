@@ -1,6 +1,3 @@
-local h = require "fzf-lua-frecency.helpers"
-local fs = require "fzf-lua-frecency.fs"
-
 local M = {}
 
 local half_life_sec = 30 * 24 * 60 * 60
@@ -31,6 +28,7 @@ M.compute_date_at_score_one = function(opts)
 end
 
 local function assert_field(field, name)
+  local h = require "fzf-lua-frecency.helpers"
   if not field then
     h.notify_error("ERROR: missing %s!", name)
     return false
@@ -62,6 +60,9 @@ M.update_file_score = function(filename, opts)
       or not assert_field(opts.max_scores_path, "opts.max_scores_path") then
     return
   end
+
+  local h = require "fzf-lua-frecency.helpers"
+  local fs = require "fzf-lua-frecency.fs"
 
   local now = h.default(opts.now, os.time())
   local cwd = h.default(opts.cwd, vim.fn.getcwd())

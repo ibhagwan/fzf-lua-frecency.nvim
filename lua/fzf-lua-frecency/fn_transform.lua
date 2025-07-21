@@ -1,29 +1,29 @@
 local M = {}
 
---- @param opts FrecencyOpts
+--- @param opts FrecencyFnOpts
 M.get_fn_transform = function(opts)
   return function(abs_file)
-    local fzf_lua          = require "fzf-lua"
-    local fs               = require "fzf-lua-frecency.fs"
-    local h                = require "fzf-lua-frecency.helpers"
-    local algo             = require "fzf-lua-frecency.algo"
-    local now              = os.time()
+    local fzf_lua = require "fzf-lua"
+    local fs = require "fzf-lua-frecency.fs"
+    local h = require "fzf-lua-frecency.helpers"
+    local algo = require "fzf-lua-frecency.algo"
+    local now = os.time()
 
-    local defaulted_opts   = h.get_defaulted_frecency_opts(opts)
-    local cwd              = defaulted_opts.cwd
-    local db_dir           = defaulted_opts.db_dir
-    local display_score    = defaulted_opts.display_score
+    local defaulted_opts = h.get_defaulted_frecency_opts(opts)
+    local cwd = defaulted_opts.cwd
+    local db_dir = defaulted_opts.db_dir
+    local display_score = defaulted_opts.display_score
 
     local dated_files_path = h.get_dated_files_path(db_dir)
-    local max_scores_path  = h.get_max_scores_path(db_dir)
+    local max_scores_path = h.get_max_scores_path(db_dir)
 
-    local dated_files      = fs.read(dated_files_path)
-    local max_scores       = fs.read(max_scores_path)
-    local max_score        = h.default(max_scores[cwd], 0)
-    local max_score_len    = #h.exact_decimals(max_score, 2)
+    local dated_files = fs.read(dated_files_path)
+    local max_scores = fs.read(max_scores_path)
+    local max_score = h.default(max_scores[cwd], 0)
+    local max_score_len = #h.exact_decimals(max_score, 2)
 
-    local rel_file         = vim.fs.relpath(cwd, abs_file)
-    local entry            = fzf_lua.make_entry.file(rel_file, opts)
+    local rel_file = vim.fs.relpath(cwd, abs_file)
+    local entry = fzf_lua.make_entry.file(rel_file, opts)
 
     if display_score then
       local score = nil

@@ -1,8 +1,4 @@
-local fzf_lua = require "fzf-lua"
-local h       = require "fzf-lua-frecency.helpers"
-local algo    = require "fzf-lua-frecency.algo"
-
-local M       = {}
+local M = {}
 
 vim.fn.setenv("FZF_LUA_FRECENCY_SERVER", vim.v.servername)
 
@@ -20,6 +16,7 @@ vim.fn.setenv("FZF_LUA_FRECENCY_SERVER", vim.v.servername)
 M.frecency = function(opts)
   opts = opts or {}
   require "fzf-lua-frecency.rpc_state".opts = opts
+  local h = require "fzf-lua-frecency.helpers"
 
   local defaulted_opts = h.get_defaulted_frecency_opts(opts)
   local cwd = defaulted_opts.cwd
@@ -30,6 +27,8 @@ M.frecency = function(opts)
   local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
   local dated_files_path = h.get_dated_files_path(db_dir)
   local max_scores_path = h.get_max_scores_path(db_dir)
+  local fzf_lua = require "fzf-lua"
+  local algo = require "fzf-lua-frecency.algo"
 
   local wrapped_enter = function(action)
     return function(selected, action_opts)
@@ -122,7 +121,7 @@ M.frecency = function(opts)
     "2>/dev/null",
   }, " ")
 
-  local awk_cmd = "awk '!x[$0]++'" -- https://stackoverflow.com/a/11532198
+  local awk_cmd = "awk '!x[$0]++'"                             -- https://stackoverflow.com/a/11532198
   local cmd = ("(%s; %s) | %s"):format(cat_cmd, fd_cmd, awk_cmd)
   fzf_lua.fzf_exec(cmd, fzf_exec_opts)
 end
@@ -134,6 +133,7 @@ end
 --- Does not delete `db_dir` itself or anything else in `db_dir`
 --- @param opts? ClearDbOpts
 M.clear_db = function(opts)
+  local h = require "fzf-lua-frecency.helpers"
   opts = opts or {}
   local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
   local sorted_files_dir = vim.fs.joinpath(db_dir, "cwds")
