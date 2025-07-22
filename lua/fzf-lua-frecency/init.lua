@@ -15,11 +15,21 @@ M.frecency = function(opts)
   opts = opts or {}
   local h = require "fzf-lua-frecency.helpers"
 
-  local defaulted_opts = h.get_defaulted_frecency_opts(opts)
-  local cwd = defaulted_opts.cwd
-  local db_dir = defaulted_opts.db_dir
-  local debug = defaulted_opts.debug
-  local fd_cmd = defaulted_opts.fd_cmd
+  local cwd = h.default(opts.cwd, vim.fn.getcwd())
+  local frecency_opts = h.default(opts.fzf_lua_frecency, {})
+  local display_score = h.default(frecency_opts.display_score, false)
+  local debug = h.default(frecency_opts.debug, false)
+  local db_dir = h.default(frecency_opts.db_dir, h.get_default_db_dir())
+  local default_fd_cmd = table.concat({
+    "fd",
+    "--absolute-path",
+    "--type", "f",
+    "--type", "l",
+    "--exclude", ".git",
+    "--base-directory", cwd,
+  }, " ")
+  local fd_cmd = h.default(frecency_opts.fd_cmd, default_fd_cmd)
+
 
   local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
   local dated_files_path = h.get_dated_files_path(db_dir)
@@ -73,13 +83,22 @@ M.frecency = function(opts)
     },
   })
 
+  --- @type GetFnTransformOpts
+  local encodeable_opts = {
+    cwd = cwd,
+    display_score = display_score,
+    debug = debug,
+    db_dir = db_dir,
+    fd_cmd = fd_cmd,
+  }
+
   -- RPC worked fine on linux, be was hanging on mac - specifically vim.rpcrequest
   -- using basic string interpolation works well since all the opts that are used can be stringified
   local fn_transform_str = string.format([[
     local abs_file = ...
     local rpc_opts = vim.mpack.decode(%q)
     return require "fzf-lua-frecency.fn_transform".get_fn_transform(rpc_opts)(abs_file)
-  ]], vim.mpack.encode(opts))
+  ]], vim.mpack.encode(encodeable_opts))
 
   local fn_transform
   local fn_transform_ok, fn_transform_res = pcall(loadstring, fn_transform_str)

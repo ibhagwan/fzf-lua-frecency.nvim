@@ -1,6 +1,13 @@
 local M = {}
 
---- @param opts FrecencyFnOpts
+--- @class GetFnTransformOpts
+--- @field cwd string
+--- @field display_score boolean
+--- @field debug boolean
+--- @field db_dir string
+--- @field fd_cmd string
+
+--- @param opts GetFnTransformOpts
 M.get_fn_transform = function(opts)
   return function(abs_file)
     local fzf_lua = require "fzf-lua"
@@ -9,25 +16,20 @@ M.get_fn_transform = function(opts)
     local algo = require "fzf-lua-frecency.algo"
     local now = os.time()
 
-    local defaulted_opts = h.get_defaulted_frecency_opts(opts)
-    local cwd = defaulted_opts.cwd
-    local db_dir = defaulted_opts.db_dir
-    local display_score = defaulted_opts.display_score
-
-    local dated_files_path = h.get_dated_files_path(db_dir)
-    local max_scores_path = h.get_max_scores_path(db_dir)
+    local dated_files_path = h.get_dated_files_path(opts.db_dir)
+    local max_scores_path = h.get_max_scores_path(opts.db_dir)
 
     local dated_files = fs.read(dated_files_path)
     local max_scores = fs.read(max_scores_path)
-    local max_score = h.default(max_scores[cwd], 0)
+    local max_score = h.default(max_scores[opts.cwd], 0)
     local max_score_len = #h.exact_decimals(max_score, 2)
 
-    local rel_file = vim.fs.relpath(cwd, abs_file)
-    local entry = fzf_lua.make_entry.file(rel_file, opts)
+    local rel_file = vim.fs.relpath(opts.cwd, abs_file)
+    local entry = fzf_lua.make_entry.file(rel_file, { file_icons = true, color_icons = true, })
 
-    if display_score then
+    if opts.display_score then
       local score = nil
-      local date_at_score_one = dated_files[cwd] and dated_files[cwd][abs_file] or nil
+      local date_at_score_one = dated_files[opts.cwd] and dated_files[opts.cwd][abs_file] or nil
       if date_at_score_one then
         score = algo.compute_score { now = now, date_at_score_one = date_at_score_one, }
       end
