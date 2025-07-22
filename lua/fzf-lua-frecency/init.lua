@@ -42,9 +42,8 @@ M.frecency = function(opts)
       vim.schedule(function()
         local now = os.time()
         for _, sel in ipairs(selected) do
-          -- TODO: remove dependency on fzf-lua internal fn
-          -- based on https://github.com/ibhagwan/fzf-lua/blob/bee05a6600ca5fe259d74c418ac9e016a6050cec/lua/fzf-lua/actions.lua#L147
-          local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
+          -- https://github.com/ibhagwan/fzf-lua/wiki/Advanced#explore-changes-from-a-git-branch
+          local filename = fzf_lua.path.entry_to_file(sel, action_opts).path
           algo.update_file_score(filename, {
             now = now,
             debug = debug,
@@ -67,7 +66,7 @@ M.frecency = function(opts)
       fn = function(selected, action_opts)
         local now = os.time()
         for _, sel in ipairs(selected) do
-          local filename = fzf_lua.path.entry_to_file(sel, action_opts, action_opts._uri).path
+          local filename = fzf_lua.path.entry_to_file(sel, action_opts).path
           algo.update_file_score(filename, {
             now = now,
             debug = debug,
