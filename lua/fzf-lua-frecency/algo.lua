@@ -9,6 +9,10 @@ local _get_pretty_date = function(date_in_sec)
   return os.date("%Y-%m-%d %H:%M:%S", date_in_sec)
 end
 
+M._now = function()
+  return os.time()
+end
+
 --- @class ComputeScore
 --- @field date_at_score_one number an os.time date. the date in seconds when the score decays to 1
 --- @field now number an os.time date
@@ -41,32 +45,31 @@ end
 --- @field filename string
 
 --- @class UpdateFileScoreOpts
---- @field debug? boolean
---- @field cwd? string
---- @field now? number
---- @field sorted_files_path string
---- @field dated_files_path string
---- @field max_scores_path string
 --- @field update_type "increase" | "remove"
+--- @field cwd? string
+--- @field db_dir? string
+--- @field debug? boolean
 
 --- @param filename string
 --- @param opts UpdateFileScoreOpts
 M.update_file_score = function(filename, opts)
+  local now = M._now()
   if not assert_field(filename, "filename")
       or not assert_field(opts, "opts")
-      or not assert_field(opts.update_type, "opts.update_type")
-      or not assert_field(opts.dated_files_path, "opts.dated_files_path")
-      or not assert_field(opts.sorted_files_path, "opts.sorted_files_path")
-      or not assert_field(opts.max_scores_path, "opts.max_scores_path") then
+      or not assert_field(opts.update_type, "opts.update_type") then
     return
   end
 
-  local h = require "fzf-lua-frecency.helpers"
   local fs = require "fzf-lua-frecency.fs"
-
-  local now = h.default(opts.now, os.time())
+  local h = require "fzf-lua-frecency.helpers"
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
+  local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
   local debug = h.default(opts.debug, false)
+
+  local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
+  local dated_files_path = h.get_dated_files_path(db_dir)
+  local max_scores_path = h.get_max_scores_path(db_dir)
+
   if debug then
     h.notify_debug_header("DEBUG: update_file_score %s", filename)
     h.notify_debug("opts.update_type: %s", opts.update_type)
@@ -74,7 +77,7 @@ M.update_file_score = function(filename, opts)
     h.notify_debug("cwd: %s", cwd)
   end
 
-  local dated_files = fs.read(opts.dated_files_path)
+  local dated_files = fs.read(dated_files_path)
   if not dated_files[cwd] then
     dated_files[cwd] = {}
   end
@@ -110,7 +113,7 @@ M.update_file_score = function(filename, opts)
   end
 
   dated_files[cwd][filename] = updated_date_at_score_one
-  fs.write { path = opts.dated_files_path, data = dated_files, encode = true, }
+  fs.write { path = dated_files_path, data = dated_files, encode = true, }
 
   --- @type ScoredFile[]
   local scored_files = {}
@@ -130,14 +133,14 @@ M.update_file_score = function(filename, opts)
   dated_files[cwd] = updated_dated_files
   fs.write {
     data = dated_files,
-    path = opts.dated_files_path,
+    path = dated_files_path,
     encode = true,
   }
-  local max_scores = fs.read(opts.max_scores_path)
+  local max_scores = fs.read(max_scores_path)
   max_scores[cwd] = max_score
   fs.write {
     data = max_scores,
-    path = opts.max_scores_path,
+    path = max_scores_path,
     encode = true,
   }
 
@@ -160,7 +163,7 @@ M.update_file_score = function(filename, opts)
   end
 
   fs.write {
-    path = opts.sorted_files_path,
+    path = sorted_files_path,
     data = sorted_files_str,
     encode = false,
   }

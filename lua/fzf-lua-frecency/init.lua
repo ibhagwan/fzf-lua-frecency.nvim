@@ -2,7 +2,7 @@ local M = {}
 
 --- @class FzfLuaFrecencyTbl
 --- @field debug boolean
---- @field db_dir string the directory in which to persist frecency scores
+--- @field db_dir string
 --- @field fd_cmd string
 --- @field display_score boolean
 
@@ -32,15 +32,12 @@ M.frecency = function(opts)
 
 
   local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
-  local dated_files_path = h.get_dated_files_path(db_dir)
-  local max_scores_path = h.get_max_scores_path(db_dir)
   local fzf_lua = require "fzf-lua"
   local algo = require "fzf-lua-frecency.algo"
 
   local wrapped_enter = function(action)
     return function(selected, action_opts)
       vim.schedule(function()
-        local now = os.time()
         for _, sel in ipairs(selected) do
           if display_score then
             sel = h.strip_score(sel)
@@ -48,13 +45,10 @@ M.frecency = function(opts)
           -- https://github.com/ibhagwan/fzf-lua/wiki/Advanced#explore-changes-from-a-git-branch
           local filename = fzf_lua.path.entry_to_file(sel, action_opts).path
           algo.update_file_score(filename, {
-            now = now,
-            debug = debug,
-            dated_files_path = dated_files_path,
-            sorted_files_path = sorted_files_path,
-            max_scores_path = max_scores_path,
-            cwd = cwd,
             update_type = "increase",
+            cwd = cwd,
+            db_dir = db_dir,
+            fd_cmd = fd_cmd,
           })
         end
       end)
@@ -67,7 +61,6 @@ M.frecency = function(opts)
     enter = wrapped_enter(fzf_lua.defaults.actions.files.enter),
     ["ctrl-x"] = {
       fn = function(selected, action_opts)
-        local now = os.time()
         for _, sel in ipairs(selected) do
           if display_score then
             sel = h.strip_score(sel)
@@ -75,13 +68,10 @@ M.frecency = function(opts)
 
           local filename = fzf_lua.path.entry_to_file(sel, action_opts).path
           algo.update_file_score(filename, {
-            now = now,
-            debug = debug,
-            dated_files_path = dated_files_path,
-            sorted_files_path = sorted_files_path,
-            max_scores_path = max_scores_path,
-            cwd = cwd,
             update_type = "remove",
+            cwd = cwd,
+            db_dir = db_dir,
+            fd_cmd = fd_cmd,
           })
         end
       end,

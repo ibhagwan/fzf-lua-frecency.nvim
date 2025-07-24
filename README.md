@@ -18,6 +18,17 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 ## Usage
 
 ```lua
+--- @class FzfLuaFrecencyTbl
+--- @field debug boolean
+--- @field db_dir string
+--- @field fd_cmd string
+--- @field display_score boolean
+
+--- @class FrecencyFnOpts
+--- @field fzf_lua_frecency FzfLuaFrecencyTbl
+--- @field [string] any any fzf-lua option
+
+--- @param opts FrecencyFnOpts
 require('fzf-lua-frecency').frecency()
 require('fzf-lua-frecency').frecency({
    -- any fzf-lua option
@@ -33,10 +44,31 @@ require('fzf-lua-frecency').frecency({
 ```
 
 ```lua
+--- @class ClearDbOpts
+--- @field db_dir? string
+
+--- @param opts? ClearDbOpts
 require('fzf-lua-frecency').clear_db()
 require('fzf-lua-frecency').clear_db({
    -- defaults:
    db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"))
+})
+```
+
+```lua
+--- @class UpdateFileScoreOpts
+--- @field update_type "increase" | "remove"
+--- @field cwd? string
+--- @field db_dir? string
+--- @field debug? boolean
+
+--- @param filename string
+--- @param opts UpdateFileScoreOpts
+require('fzf-lua-frecency').update_file_score("absolute/path/to/file", {
+    update_type = "increase" -- required, no default
+    cwd = vim.fn.getcwd(),
+    db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
+    debug = false,
 })
 ```
 
