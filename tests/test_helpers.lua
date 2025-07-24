@@ -43,4 +43,13 @@ T["#exact_decimals"]["truncates then formats to exact decimals"] = function()
   MiniTest.expect.equality(h.exact_decimals(5, 3), "5.000")
 end
 
+T["#strip_score"] = MiniTest.new_set()
+T["#strip_score"]["removes leading numbers and spaces"] = function()
+  MiniTest.expect.equality(h.strip_score "1.23 some/file/path", "some/file/path")
+  MiniTest.expect.equality(h.strip_score "2.00    another/file", "another/file")
+  MiniTest.expect.equality(h.strip_score "no/score prefix", "no/score prefix")
+  MiniTest.expect.equality(h.strip_score "", "")
+  MiniTest.expect.equality(h.strip_score "1    ", "")
+end
+
 return T

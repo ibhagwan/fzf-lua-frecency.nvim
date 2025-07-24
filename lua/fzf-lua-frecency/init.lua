@@ -42,6 +42,9 @@ M.frecency = function(opts)
       vim.schedule(function()
         local now = os.time()
         for _, sel in ipairs(selected) do
+          if display_score then
+            sel = h.strip_score(sel)
+          end
           -- https://github.com/ibhagwan/fzf-lua/wiki/Advanced#explore-changes-from-a-git-branch
           local filename = fzf_lua.path.entry_to_file(sel, action_opts).path
           algo.update_file_score(filename, {
@@ -66,6 +69,10 @@ M.frecency = function(opts)
       fn = function(selected, action_opts)
         local now = os.time()
         for _, sel in ipairs(selected) do
+          if display_score then
+            sel = h.strip_score(sel)
+          end
+
           local filename = fzf_lua.path.entry_to_file(sel, action_opts).path
           algo.update_file_score(filename, {
             now = now,

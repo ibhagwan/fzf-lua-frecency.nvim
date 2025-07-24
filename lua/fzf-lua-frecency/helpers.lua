@@ -90,4 +90,9 @@ M.get_max_scores_path = function(db_dir)
   return vim.fs.joinpath(db_dir, "max-scores.mpack")
 end
 
+--- @param str string
+M.strip_score = function(str)
+  return str:gsub("^%d+%.?%d*%s+", "")
+end
+
 return M
