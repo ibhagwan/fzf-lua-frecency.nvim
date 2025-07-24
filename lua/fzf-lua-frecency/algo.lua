@@ -169,4 +169,47 @@ M.update_file_score = function(filename, opts)
   }
 end
 
+--- @class GetScorePrefixOpts
+--- @field cwd? string
+--- @field db_dir? string
+
+--- @param filename string
+--- @param opts? GetScorePrefixOpts
+M.get_score_prefix = function(filename, opts)
+  local h = require "fzf-lua-frecency.helpers"
+  opts = opts or {}
+  local cwd = h.default(opts.cwd, vim.fn.getcwd())
+  local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
+
+  local now = os.time()
+  local fs = require "fzf-lua-frecency.fs"
+  local algo = require "fzf-lua-frecency.algo"
+
+  local dated_files_path = h.get_dated_files_path(db_dir)
+  local max_scores_path = h.get_max_scores_path(db_dir)
+
+  local dated_files = fs.read(dated_files_path)
+  local max_scores = fs.read(max_scores_path)
+  local max_score = h.default(max_scores[cwd], 0)
+  local max_score_len = #h.exact_decimals(max_score, 2)
+
+  local score = nil
+  local date_at_score_one = dated_files[cwd] and dated_files[cwd][filename] or nil
+  if date_at_score_one then
+    score = algo.compute_score { now = now, date_at_score_one = date_at_score_one, }
+  end
+
+  local formatted_score
+  if max_score == 0 then
+    formatted_score = ""
+  elseif score == nil then
+    formatted_score = (" "):rep(max_score_len)
+  else
+    formatted_score = h.pad_str(h.exact_decimals(score, 2), max_score_len)
+  end
+
+  return formatted_score
+end
+
+
 return M
