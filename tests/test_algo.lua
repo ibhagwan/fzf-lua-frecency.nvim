@@ -226,42 +226,6 @@ T["#update_file_score"]["update_type=increase"]["recalculates all scores when ad
   MiniTest.expect.equality(fs.read(max_scores_path)[cwd], 1)
 end
 
-T["#update_file_score"]["update_type=increase"]["filters files lower than 0.95"] = function()
-  algo.update_file_score(test_file_a, {
-    now = now,
-    cwd = cwd,
-    dated_files_path = dated_files_path,
-    sorted_files_path = sorted_files_path,
-    max_scores_path = max_scores_path,
-    update_type = "increase",
-  })
-
-  MiniTest.expect.equality(
-    fs.read(dated_files_path)[cwd][test_file_a],
-    date_at_score_one_now
-  )
-
-  algo.update_file_score(test_file_b, {
-    now = now_after_3_days,
-    cwd = cwd,
-    dated_files_path = dated_files_path,
-    sorted_files_path = sorted_files_path,
-    max_scores_path = max_scores_path,
-    update_type = "increase",
-  })
-
-  MiniTest.expect.equality(
-    fs.read(dated_files_path)[cwd][test_file_a],
-    nil
-  )
-  MiniTest.expect.equality(
-    fs.read(dated_files_path)[cwd][test_file_b],
-    algo.compute_date_at_score_one { now = now_after_3_days, score = score_when_adding, }
-  )
-  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
-  MiniTest.expect.equality(fs.read(max_scores_path)[cwd], 1)
-end
-
 T["#update_file_score"]["update_type=increase"]["filters deleted files"] = function()
   algo.update_file_score(test_file_a, {
     now = now,

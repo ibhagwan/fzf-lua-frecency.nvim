@@ -88,7 +88,7 @@ require('fzf-lua-frecency').frecency({
 - Scores are not stored directly. Instead, an `mpack`-encoded file keeps track of the `date_at_score_one` for each file, which represents the time at which the file's score will decay to `1`. Using the `date_at_score_one`, current time, and decay-rate, we can derive a file's current score.
 - When a file is selected, the score for that file is computed, incremented by `1`, and converted back to a `date_at_score_one` format.
 - The files are sorted based on current score and output to a `txt` file which is scoped to the current working directory.
-  - Files with a score of less than `0.95` (a file that hasn't been accessed in two days) are filtered out - these files will be grouped with the results of `fd` instead. Files that are no longer available (i.e. deleted, renamed, moved) are also filtered during this step.
+  - Files that are no longer available (i.e. deleted, renamed, moved) are also filtered during this step.
 - When the picker is invoked, the `txt` file is read and its content are streamed into the UI. After the frecent files are fully populated, the results from `fd` are streamed in also. This ensures that the frecent files appear first, while also incrementally populating the picker UI.
 
 ## Dependencies

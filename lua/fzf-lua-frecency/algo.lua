@@ -119,10 +119,9 @@ M.update_file_score = function(filename, opts)
   for dated_file_entry, date_at_one_point_entry in pairs(dated_files[cwd]) do
     local recomputed_score = M.compute_score { now = now, date_at_score_one = date_at_one_point_entry, }
 
-    local accessed_in_past_two_days = recomputed_score > 0.95
     local readable = vim.fn.filereadable(dated_file_entry) == h.vimscript_true
 
-    if readable and accessed_in_past_two_days then
+    if readable then
       max_score = math.max(max_score, recomputed_score)
       table.insert(scored_files, { filename = dated_file_entry, score = recomputed_score, })
       updated_dated_files[dated_file_entry] = date_at_one_point_entry
