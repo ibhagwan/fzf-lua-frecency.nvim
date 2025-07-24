@@ -1,4 +1,4 @@
-*fzf-lua-frecency.txt*                               Last change: 2025 July 23
+*fzf-lua-frecency.txt*                               Last change: 2025 July 24
 
 ==============================================================================
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
@@ -92,6 +92,7 @@ USAGE                                                 *fzf-lua-frecency-usage*
     --- @param opts UpdateFileScoreOpts
     require('fzf-lua-frecency').update_file_score("absolute/path/to/file", {
         update_type = "increase" -- required, no default
+        -- defaults:
         cwd = vim.fn.getcwd(),
         db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
         debug = false,
