@@ -49,6 +49,7 @@ end
 --- @field cwd? string
 --- @field db_dir? string
 --- @field debug? boolean
+--- @field prepend_score? boolean
 
 --- @param filename string
 --- @param opts UpdateFileScoreOpts
@@ -65,6 +66,7 @@ M.update_file_score = function(filename, opts)
   local cwd = h.default(opts.cwd, vim.fn.getcwd())
   local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
   local debug = h.default(opts.debug, false)
+  local prepend_score = h.default(opts.prepend_score, false)
 
   local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
   local dated_files_path = h.get_dated_files_path(db_dir)
@@ -156,7 +158,15 @@ M.update_file_score = function(filename, opts)
     h.notify_debug("scored_files after sort: %s", vim.inspect(scored_files))
   end
 
-  local scored_files_list = vim.tbl_map(function(scored_file) return scored_file.filename end, scored_files)
+  local scored_files_list = {}
+  for _, scored_file in pairs(scored_files) do
+    if prepend_score then
+      local formatted_score = h.exact_decimals(scored_file.score, 2)
+      table.insert(scored_files_list, ("%s:%s"):format(formatted_score, scored_file.filename))
+    else
+      table.insert(scored_files_list, scored_file.filename)
+    end
+  end
   local sorted_files_str = table.concat(scored_files_list, "\n")
   if #sorted_files_str > 0 then
     sorted_files_str = sorted_files_str .. "\n"
@@ -168,48 +178,5 @@ M.update_file_score = function(filename, opts)
     encode = false,
   }
 end
-
---- @class GetScorePrefixOpts
---- @field cwd? string
---- @field db_dir? string
-
---- @param filename string
---- @param opts? GetScorePrefixOpts
-M.get_score_prefix = function(filename, opts)
-  local h = require "fzf-lua-frecency.helpers"
-  opts = opts or {}
-  local cwd = h.default(opts.cwd, vim.fn.getcwd())
-  local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
-
-  local now = os.time()
-  local fs = require "fzf-lua-frecency.fs"
-  local algo = require "fzf-lua-frecency.algo"
-
-  local dated_files_path = h.get_dated_files_path(db_dir)
-  local max_scores_path = h.get_max_scores_path(db_dir)
-
-  local dated_files = fs.read(dated_files_path)
-  local max_scores = fs.read(max_scores_path)
-  local max_score = h.default(max_scores[cwd], 0)
-  local max_score_len = #h.exact_decimals(max_score, 2)
-
-  local score = nil
-  local date_at_score_one = dated_files[cwd] and dated_files[cwd][filename] or nil
-  if date_at_score_one then
-    score = algo.compute_score { now = now, date_at_score_one = date_at_score_one, }
-  end
-
-  local formatted_score
-  if max_score == 0 then
-    formatted_score = ""
-  elseif score == nil then
-    formatted_score = (" "):rep(max_score_len)
-  else
-    formatted_score = h.pad_str(h.exact_decimals(score, 2), max_score_len)
-  end
-
-  return formatted_score
-end
-
 
 return M

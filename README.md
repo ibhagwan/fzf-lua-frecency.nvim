@@ -64,8 +64,9 @@ require('fzf-lua-frecency').clear_db({
 
 --- @param filename string
 --- @param opts UpdateFileScoreOpts
-require('fzf-lua-frecency').update_file_score("absolute/path/to/file", {
-    update_type = "increase" -- required, no default
+require('fzf-lua-frecency.algo').update_file_score("absolute/path/to/file", {
+    -- required
+    update_type = "increase" 
     -- defaults:
     cwd = vim.fn.getcwd(),
     db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
