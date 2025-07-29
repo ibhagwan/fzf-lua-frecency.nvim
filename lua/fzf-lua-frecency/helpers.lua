@@ -75,11 +75,9 @@ M.get_default_db_dir = function()
 end
 
 --- @param db_dir string
---- @param cwd string
-M.get_sorted_files_path = function(db_dir, cwd)
+M.get_sorted_files_path = function(db_dir)
   db_dir = M.default(db_dir, M.get_default_db_dir())
-  cwd = M.default(cwd, vim.fn.getcwd())
-  return vim.fs.joinpath(db_dir, "cwds", cwd, "sorted-files.txt")
+  return vim.fs.joinpath(db_dir, "sorted-files.txt")
 end
 
 --- @param db_dir string

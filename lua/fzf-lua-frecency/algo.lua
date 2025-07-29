@@ -46,7 +46,6 @@ end
 
 --- @class UpdateFileScoreOpts
 --- @field update_type "increase" | "remove"
---- @field cwd? string
 --- @field db_dir? string
 --- @field debug? boolean
 --- @field prepend_score? boolean
@@ -63,12 +62,12 @@ M.update_file_score = function(filename, opts)
 
   local fs = require "fzf-lua-frecency.fs"
   local h = require "fzf-lua-frecency.helpers"
-  local cwd = h.default(opts.cwd, vim.fn.getcwd())
+  local db_index = 1 -- We only use index 1 everywhere
   local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
   local debug = h.default(opts.debug, false)
   local prepend_score = h.default(opts.prepend_score, false)
 
-  local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
+  local sorted_files_path = h.get_sorted_files_path(db_dir)
   local dated_files_path = h.get_dated_files_path(db_dir)
   local max_scores_path = h.get_max_scores_path(db_dir)
 
@@ -76,12 +75,11 @@ M.update_file_score = function(filename, opts)
     h.notify_debug_header("DEBUG: update_file_score %s", filename)
     h.notify_debug("opts.update_type: %s", opts.update_type)
     h.notify_debug("now: %s", _get_pretty_date(now))
-    h.notify_debug("cwd: %s", cwd)
   end
 
   local dated_files = fs.read(dated_files_path)
-  if not dated_files[cwd] then
-    dated_files[cwd] = {}
+  if not dated_files[db_index] then
+    dated_files[db_index] = {}
   end
 
   if debug then
@@ -91,7 +89,7 @@ M.update_file_score = function(filename, opts)
   local updated_date_at_score_one
   if opts.update_type == "increase" then
     local score = 0
-    local date_at_score_one = dated_files[cwd][filename]
+    local date_at_score_one = dated_files[db_index][filename]
     if date_at_score_one then
       score = M.compute_score { now = now, date_at_score_one = date_at_score_one, }
     end
@@ -114,17 +112,17 @@ M.update_file_score = function(filename, opts)
     h.notify_debug("updated_date_at_score_one: %s", _get_pretty_date(updated_date_at_score_one))
   end
 
-  dated_files[cwd][filename] = updated_date_at_score_one
+  dated_files[db_index][filename] = updated_date_at_score_one
   fs.write { path = dated_files_path, data = dated_files, encode = true, }
 
   --- @type ScoredFile[]
   local scored_files = {}
   local updated_dated_files = {}
   local max_score = 0
-  for dated_file_entry, date_at_one_point_entry in pairs(dated_files[cwd]) do
+  for dated_file_entry, date_at_one_point_entry in pairs(dated_files[db_index]) do
     local recomputed_score = M.compute_score { now = now, date_at_score_one = date_at_one_point_entry, }
 
-    local readable = vim.fn.filereadable(dated_file_entry) == h.vimscript_true
+    local readable = vim.uv.fs_stat(dated_file_entry) ~= nil
 
     if readable then
       max_score = math.max(max_score, recomputed_score)
@@ -132,14 +130,14 @@ M.update_file_score = function(filename, opts)
       updated_dated_files[dated_file_entry] = date_at_one_point_entry
     end
   end
-  dated_files[cwd] = updated_dated_files
+  dated_files[db_index] = updated_dated_files
   fs.write {
     data = dated_files,
     path = dated_files_path,
     encode = true,
   }
   local max_scores = fs.read(max_scores_path)
-  max_scores[cwd] = max_score
+  max_scores[db_index] = max_score
   fs.write {
     data = max_scores,
     path = max_scores_path,

@@ -4,8 +4,8 @@ local fzf_lua = require "fzf-lua"
 
 local root_dir = vim.fs.joinpath(vim.fn.getcwd(), "test-init")
 local db_dir = vim.fs.joinpath(root_dir, "db-dir")
-local cwd = vim.fs.joinpath(root_dir, "files")
-local sorted_files_path = h.get_sorted_files_path(db_dir, cwd)
+local db_index = 1
+local sorted_files_path = h.get_sorted_files_path(db_dir)
 local dated_files_path = h.get_dated_files_path(db_dir)
 local max_scores_path = h.get_max_scores_path(db_dir)
 local existing_file_path = vim.fs.joinpath(db_dir, "existing-dir", "existing-file.txt")
@@ -31,19 +31,20 @@ T["#frecency"]["builds the correct fzf command and calls fzf_exec"] = function()
   }
 
   fzf_lua.fzf_exec = function(cmd, opts)
+    print("cmd", cmd)
     called.cmd = cmd
     called.opts = opts
   end
 
   fzf_lua_frecency.frecency {
-    cwd = cwd,
-    fzf_lua_frecency = {
-      db_dir = db_dir,
-    },
+    db_dir = db_dir,
+    all_files = true,
   }
 
+  MiniTest.expect.equality(called.opts.all_files, true)
+
   local cat_cmd = ("cat %s 2>/dev/null"):format(sorted_files_path)
-  local fd_cmd = ("fd --absolute-path --type f --type l --exclude .git --base-directory %s"):format(cwd)
+  local fd_cmd = "fd --absolute-path --type f --type l --exclude .git"
   MiniTest.expect.equality(called.cmd, ("(%s; %s) | awk '!x[$0]++'"):format(cat_cmd, fd_cmd))
 end
 
@@ -62,8 +63,8 @@ T["#clear_db"] = MiniTest.new_set {
       local now_after_30_min = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 30, sec = 0, }
 
       write_file(sorted_files_path, "file_1.txt\nfile")
-      write_file(dated_files_path, vim.mpack.encode { [cwd] = { file_1 = now, file_2 = now_after_30_min, }, })
-      write_file(max_scores_path, vim.mpack.encode { [cwd] = { 1, }, })
+      write_file(dated_files_path, vim.mpack.encode { [db_index] = { file_1 = now, file_2 = now_after_30_min, }, })
+      write_file(max_scores_path, vim.mpack.encode { [db_index] = { 1, }, })
       write_file(existing_file_path, "existing content")
     end,
     post_case = function()
@@ -77,20 +78,20 @@ T["#clear_db"] = MiniTest.new_set {
 }
 T["#clear_db"]["deletes the cwd dir, dated-files.mpack, max-scores.mpack, and nothing else"] = function()
   MiniTest.expect.equality(
-    vim.fn.filereadable(sorted_files_path),
-    h.vimscript_true
+    vim.uv.fs_stat(sorted_files_path) ~= nil,
+    true
   )
   MiniTest.expect.equality(
-    vim.fn.filereadable(dated_files_path),
-    h.vimscript_true
+    vim.uv.fs_stat(dated_files_path) ~= nil,
+    true
   )
   MiniTest.expect.equality(
-    vim.fn.filereadable(existing_file_path),
-    h.vimscript_true
+    vim.uv.fs_stat(existing_file_path) ~= nil,
+    true
   )
   MiniTest.expect.equality(
-    vim.fn.filereadable(max_scores_path),
-    h.vimscript_true
+    vim.uv.fs_stat(max_scores_path) ~= nil,
+    true
   )
 
   fzf_lua_frecency.clear_db {
@@ -98,20 +99,16 @@ T["#clear_db"]["deletes the cwd dir, dated-files.mpack, max-scores.mpack, and no
   }
 
   MiniTest.expect.equality(
-    vim.fn.filereadable(sorted_files_path),
-    h.vimscript_false
+    vim.uv.fs_stat(sorted_files_path) == nil,
+    true
   )
   MiniTest.expect.equality(
-    vim.fn.filereadable(dated_files_path),
-    h.vimscript_false
+    vim.uv.fs_stat(dated_files_path) == nil,
+    true
   )
   MiniTest.expect.equality(
-    vim.fn.filereadable(max_scores_path),
-    h.vimscript_false
-  )
-  MiniTest.expect.equality(
-    vim.fn.isdirectory(vim.fs.joinpath(db_dir, "cwds")),
-    h.vimscript_false
+    vim.uv.fs_stat(max_scores_path) == nil,
+    true
   )
 
   MiniTest.expect.equality(
@@ -119,8 +116,8 @@ T["#clear_db"]["deletes the cwd dir, dated-files.mpack, max-scores.mpack, and no
     h.vimscript_true
   )
   MiniTest.expect.equality(
-    vim.fn.filereadable(existing_file_path),
-    h.vimscript_true
+    vim.uv.fs_stat(existing_file_path) ~= nil,
+    true
   )
 end
 
