@@ -18,14 +18,13 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 ## Usage
 
 ```lua
---- @class FzfLuaFrecencyTbl
---- @field debug boolean
---- @field db_dir string
---- @field fd_cmd string
---- @field display_score boolean
 
 --- @class FrecencyFnOpts
---- @field fzf_lua_frecency FzfLuaFrecencyTbl
+--- @field debug boolean
+--- @field db_dir string
+--- @field all_files boolean
+--- @field stat_file boolean
+--- @field display_score boolean
 --- @field [string] any any fzf-lua option
 
 --- @param opts FrecencyFnOpts
@@ -34,14 +33,21 @@ require('fzf-lua-frecency').frecency({
    -- any fzf-lua option
    -- ...
    -- defaults:
-   fzf_lua_frecency = {
-       debug = false,
-       db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
-       fd_cmd = "fd --absolute-path --type f --type l --exclude .git --base-directory [cwd]" -- where cwd is opts.cwd provided to fzf-lua, or vim.fn.getcwd()
-       display_score = false,
-   }
+    debug = false,
+    db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
+    cwd_only = false,     -- Display files from cwd only, defaults `all_files=true`
+    all_files = nil,      -- Enumerate non-scored files in cwd?
+    stat_file = true,     -- Test for scored files existence in the fs
+    display_score = false,-- Prefix entry with frecency score
 })
 ```
+
+> [!TIP]
+> After running frecency for the first time (or after calling `setup`), frecency
+> will register as an extension to fzf-lua extending the `:FzfLua` command, e.g:
+> ```lua
+> :FzfLua frecency cwd_only=true all_files=false
+>```
 
 ```lua
 --- @class ClearDbOpts
@@ -80,11 +86,10 @@ By default, the following options are passed along to `fzf_lua.fzf_exec`:
 
 ```lua
 local opts = {
-  -- the default actions for fzf_lua.files, with:
-  -- 1. the default ["enter"] action wrapped to also update a frecence score
-  -- 2. an additional ["ctrl-x"] action to remove a file's frecency score
-  actions      = actions, 
-  previewer    = "builtin",
+  -- the default actions for fzf_lua.files, with:an additional
+  -- ["ctrl-x"] -- action to remove a file's frecency score
+  --actions      = actions,    -- FzfLua's default files actions
+  --previewer    = previewer,  -- FzfLua's default previewer
   file_icons   = true,
   color_icons  = true,
   git_icons    = false,
@@ -92,16 +97,13 @@ local opts = {
     ["--multi"] = true,
     ["--scheme"] = "path",
     ["--no-sort"] = true,
-    ["--header"] = (":: <%s> to %s"):format(
-      fzf_lua.utils.ansi_from_hl("FzfLuaHeaderBind", "ctrl-x"),
-      fzf_lua.utils.ansi_from_hl("FzfLuaHeaderText", "delete a frecency score")
-    ),
   },
   winopts      = { preview = { winopts = { cursorline = false, }, }, },
-  fn_transform = function(abs_file)
+  fn_transform = function(abs_file, opts)
     local entry = fzf_lua.make_entry.file(rel_file, opts)
     -- ...
     -- prepends the frecency score if `display_score` is true
+    -- removes no longer existing files if `stat_file` is true
     -- ...
     return entry
   end,
@@ -115,6 +117,9 @@ require('fzf-lua-frecency').frecency({
   file_icons   = false,
   color_icons  = false,
 })
+
+-- Using FzfLua's command
+:FzfLua frecency display_score=false cwd_only=true
 ```
 
 ## How it works

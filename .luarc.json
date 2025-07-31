@@ -4,12 +4,15 @@
   ],
   "workspace.ignoreSubmodules": false,
   "diagnostics.globals": [
-    "vim"
+    "vim",
+    "FzfLua",
+    "MiniTest",
   ],
   "diagnostics.disable": [
     "missing-fields"
   ],
   "workspace.library": [
-    "$VIMRUNTIME"
+    "$VIMRUNTIME",
+    "${3rd}/luv/library",
   ]
 }
