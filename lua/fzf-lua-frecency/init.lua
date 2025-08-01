@@ -178,7 +178,7 @@ M.frecency = function(opts)
     if opts.all_files == nil then
       all_files = opts.cwd_only
     else
-      all_files = false
+      all_files = opts.all_files
     end
 
     local cat_cmd = table.concat({
@@ -187,7 +187,7 @@ M.frecency = function(opts)
       "2>/dev/null", -- in case the file doesn't exist
     }, " ")
     if not all_files then
-      opts.cmd = cat_cmd
+      return cat_cmd
     end
 
     local all_files_cmd = get_files_cmd(opts)
