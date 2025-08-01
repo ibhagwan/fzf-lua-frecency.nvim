@@ -9,8 +9,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 ## Performance
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
-- Frecency scores are computed and sorted when a file is selected from the picker, _not_ when populating the picker UI.
-- Scores are stored separately for each working directory (`cwd`). This avoids filtering irrelevant files when populating the picker UI.
+- Frecency scores are sorted when a file is selected from the picker, _not_ when populating the picker UI.
 - The picker UI opens instantly, with frecency-ranked files and `fd` results streaming in over time.
 - Files are processed for the picker UI by headless Neovim instances (`fzf-lua`'s `multiprocess=true` option). 
   - `fzf-lua-frecency` uses string interpolation to embed user configuration options into the headless instances
@@ -35,16 +34,16 @@ require('fzf-lua-frecency').frecency({
    -- defaults:
     debug = false,
     db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
-    cwd_only = false,     -- Display files from cwd only, defaults `all_files=true`
-    all_files = nil,      -- Enumerate non-scored files in cwd?
-    stat_file = true,     -- Test for scored files existence in the fs
-    display_score = false,-- Prefix entry with frecency score
+    cwd_only = false,     -- Display files from the cwd only 
+    all_files = nil,      -- Populate non-scored files in cwd? Defaults to `true` if `cwd_only=true`, else `false`
+    stat_file = true,     -- Test for a scored file's existence in the file system
+    display_score = false,-- Prefix the fzf entry with its frecency score
 })
 ```
 
 > [!TIP]
-> After running frecency for the first time (or after calling `setup`), frecency
-> will register as an extension to fzf-lua extending the `:FzfLua` command, e.g:
+> After running frecency for the first time (or after calling `setup`), fzf-lua-frecency
+> will register as an fzf-lua extension, extending the `:FzfLua` command:
 > ```lua
 > :FzfLua frecency cwd_only=true all_files=false
 >```
@@ -80,16 +79,16 @@ require('fzf-lua-frecency.algo').update_file_score("absolute/path/to/file", {
 })
 ```
 
-## Default `fzf-lua` opts
+## Default `FzfLua` opts
 
-By default, the following options are passed along to `fzf_lua.fzf_exec`:
+By default, the following options are passed along to `FzfLua.fzf_exec`:
 
 ```lua
 local opts = {
-  -- the default actions for fzf_lua.files, with:an additional
+  -- the default actions for FzfLua files, with an additional
   -- ["ctrl-x"] -- action to remove a file's frecency score
-  --actions      = actions,    -- FzfLua's default files actions
-  --previewer    = previewer,  -- FzfLua's default previewer
+  actions      = actions,    
+  previewer    = previewer,  -- FzfLua's default previewer
   file_icons   = true,
   color_icons  = true,
   git_icons    = false,
@@ -99,11 +98,12 @@ local opts = {
     ["--no-sort"] = true,
   },
   winopts      = { preview = { winopts = { cursorline = false, }, }, },
+  multiprocess = true,
   fn_transform = function(abs_file, opts)
-    local entry = fzf_lua.make_entry.file(rel_file, opts)
+    local entry = FzfLua.make_entry.file(rel_file, opts)
     -- ...
     -- prepends the frecency score if `display_score` is true
-    -- removes no longer existing files if `stat_file` is true
+    -- removes files that no longer exist if `stat_file` is true
     -- ...
     return entry
   end,
@@ -125,15 +125,16 @@ require('fzf-lua-frecency').frecency({
 ## How it works
 - Files are ranked based on a frecency score. This score decays exponentially over time with a half-life of 30 days - i.e. if the current score is `1`, it will decay to `0.5` in 30 days.
 - Scores are not stored directly. Instead, an `mpack`-encoded file keeps track of the `date_at_score_one` for each file, which represents the time at which the file's score will decay to `1`. Using the `date_at_score_one`, current time, and decay-rate, we can derive a file's current score.
-- When a file is selected, the score for that file is computed, incremented by `1`, and converted back to a `date_at_score_one` format.
-- The files are sorted based on current score and output to a `txt` file which is scoped to the current working directory.
+- When a file is opened, the score for that file is computed, incremented by `1`, and converted back to a `date_at_score_one` format.
+- The files are sorted based on current score and output to a `txt` file.
   - Files that are no longer available (i.e. deleted, renamed, moved) are also filtered during this step.
 - When the picker is invoked, the `txt` file is read and its content are streamed into the UI. After the frecent files are fully populated, the results from `fd` are streamed in also. This ensures that the frecent files appear first, while also incrementally populating the picker UI.
 
 ## Dependencies
 
 - [fzf-lua](https://github.com/ibhagwan/fzf-lua)
-- [`fd`](https://github.com/sharkdp/fd)
+- [`fd`](https://github.com/sharkdp/fd) or [`rg`](https://github.com/BurntSushi/ripgrep)
+- `awk`
 - Neovim 0.9+
 
 ## Similar plugins
