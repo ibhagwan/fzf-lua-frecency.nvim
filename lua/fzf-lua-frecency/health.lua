@@ -20,7 +20,7 @@ function M.check()
   elseif vim.fn.executable "find" == h.vimscript_true then
     vim.health.ok "'find' is installed"
   else
-    vim.health.error("'all_files' requires 'fd' or 'rg' to be installed", {
+    vim.health.error("'all_files' requires 'fd', 'rg', or 'find' to be installed", {
       "Install fd: https://github.com/sharkdp/fd",
       "Install rg: https://github.com/BurntSushi/ripgrep",
       "Install find: https://www.gnu.org/software/findutils/",

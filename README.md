@@ -144,4 +144,4 @@ require('fzf-lua-frecency').frecency({
 - [fzf-lua-enchanted-files](https://github.com/otavioschwanck/fzf-lua-enchanted-files)
 
 ## TODO
-- [ ] User commands
+- [ ] Windows support

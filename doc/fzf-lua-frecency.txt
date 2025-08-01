@@ -197,6 +197,6 @@ SIMILAR PLUGINS                             *fzf-lua-frecency-similar-plugins*
 TODO                                                   *fzf-lua-frecency-todo*
 
 
-- [ ] User commands
+- [ ] Windows support
 
 vim:tw=78:ts=8:ft=help:norl:
