@@ -1,3 +1,4 @@
+--- @diagnostic disable: duplicate-set-field, missing-parameter
 local algo = require "fzf-lua-frecency.algo"
 local h = require "fzf-lua-frecency.helpers"
 local fs = require "fzf-lua-frecency.fs"

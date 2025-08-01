@@ -1,3 +1,4 @@
+--- @diagnostic disable: duplicate-set-field
 local fs = require "fzf-lua-frecency.fs"
 local h = require "fzf-lua-frecency.helpers"
 

@@ -1,3 +1,4 @@
+--- @diagnostic disable: duplicate-set-field, return-type-mismatch, missing-return, undefined-field, need-check-nil
 local transform = require "fzf-lua-frecency.fn_transform"
 local algo = require "fzf-lua-frecency.algo"
 
@@ -23,13 +24,13 @@ end
 
 local os_time = os.time
 local vim_schedule = vim.schedule
-local uv_fs_stat = vim.uv.fs_stat
+local vim_uv_fs_stat = vim.uv.fs_stat
 local algo_update_file_score = algo.update_file_score
 
 local function cleanup()
   os.time = os_time
   vim.schedule = vim_schedule
-  vim.uv.fs_stat = uv_fs_stat
+  vim.uv.fs_stat = vim_uv_fs_stat
   algo.update_file_score = algo_update_file_score
 
   _G.FzfLua.make_entry.file = function(filename) return filename end
@@ -76,7 +77,6 @@ T["#get_fn_transform"]["basic functionality"]["returns nil when FzfLua.make_entr
 end
 
 T["#get_fn_transform"]["display_score"] = MiniTest.new_set()
-
 T["#get_fn_transform"]["display_score"]["displays padded spaces for file not in db"] = function()
   local fn_transform = transform.get_fn_transform {
     stat_file = false,
@@ -128,7 +128,6 @@ T["#get_fn_transform"]["display_score"]["displays decayed score"] = function()
 end
 
 T["#get_fn_transform"]["stat_file"] = MiniTest.new_set()
-
 T["#get_fn_transform"]["stat_file"]["returns entry for existing file in db"] = function()
   os.time = function() return now end
 
@@ -201,7 +200,6 @@ T["#get_fn_transform"]["stat_file"]["schedules removal for nonexistent file in d
 end
 
 T["#get_fn_transform"]["combined options"] = MiniTest.new_set()
-
 T["#get_fn_transform"]["combined options"]["stat_file and display_score for existing file"] = function()
   os.time = function() return now end
 
@@ -234,7 +232,7 @@ T["#get_fn_transform"]["combined options"]["stat_file and display_score for none
       return nil
     end
   end
-  vim.schedule = function(fn) end
+  vim.schedule = function() end
 
   local fn_transform = transform.get_fn_transform {
     stat_file = true,
