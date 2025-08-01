@@ -48,10 +48,14 @@ local function cleanup()
 end
 
 local T = MiniTest.new_set()
+
 T["#update_file_score"] = MiniTest.new_set {
   hooks = {
     pre_case = cleanup,
     post_case = cleanup,
+    post_once = function()
+      vim.fn.delete(root_dir, "rf")
+    end,
   },
 }
 

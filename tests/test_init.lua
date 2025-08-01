@@ -20,6 +20,9 @@ local T = MiniTest.new_set {
   hooks = {
     pre_case = cleanup,
     post_case = cleanup,
+    post_once = function()
+      vim.fn.delete(root_dir, "rf")
+    end,
   },
 }
 
