@@ -18,9 +18,9 @@ local M = {}
 
 local function get_files_cmd(opts)
   -- https://github.com/ibhagwan/fzf-lua/blob/e40e2337611fa426b8bcb6989fc310035c6ec4aa/README.md?plain=1#L831-L833
-  local default_fd_opts = [[--color=never --hidden --type f --type l --exclude .git]]
-  local default_find_opts = [[-type f \! -path '*/.git/*']]
-  local default_rg_opts = [[--color=never --hidden --files -g "!.git"]]
+  local default_fd_opts = [[--absolute-path --color=never --hidden --type f --type l --exclude .git]]
+  local default_rg_opts = string.format([[--color=never --hidden --files -g "!.git" %s]], opts.cwd)
+  local default_find_opts = string.format([[%s -type f \! -path '*/.git/*']], opts.cwd)
 
   local fd_opts = h.default(opts.fd_opts, default_fd_opts)
   local find_opts = h.default(opts.find_opts, default_find_opts)
@@ -106,6 +106,11 @@ M.setup = function(opts)
         title = " Frecency ",
         preview = { winopts = { cursorline = false, }, },
       },
+      -- tell fzf to ignore fuzzy matching anything before the filename
+      -- by adding a "--delimiter=utils.nbsp|--nth=-1.." to fzf_opts
+      -- this avoids matching the score text/icons so we can perform
+      -- searches like "^init.lua"
+      _fzf_nth_devicons = true,
       -- display cwd (if different) and action (ctrl-x) headers
       _headers = { "cwd", "actions", },
       -- inherit actions from the users' setup/global `actions.files`
