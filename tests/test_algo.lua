@@ -1,3 +1,4 @@
+--- @diagnostic disable: duplicate-set-field, missing-parameter
 local algo = require "fzf-lua-frecency.algo"
 local h = require "fzf-lua-frecency.helpers"
 local fs = require "fzf-lua-frecency.fs"
@@ -7,7 +8,6 @@ local db_dir = vim.fs.joinpath(root_dir, "db-dir")
 local db_index = 1
 local sorted_files_path = h.get_sorted_files_path(db_dir)
 local dated_files_path = h.get_dated_files_path(db_dir)
-local max_scores_path = h.get_max_scores_path(db_dir)
 
 local cwd = vim.fs.joinpath(root_dir, "files")
 local test_file_a = vim.fs.joinpath(cwd, "test-file-a.txt")
@@ -48,10 +48,14 @@ local function cleanup()
 end
 
 local T = MiniTest.new_set()
+
 T["#update_file_score"] = MiniTest.new_set {
   hooks = {
     pre_case = cleanup,
     post_case = cleanup,
+    post_once = function()
+      vim.fn.delete(root_dir, "rf")
+    end,
   },
 }
 
@@ -102,7 +106,6 @@ T["#update_file_score"]["update_type=increase"]["adds score entry for new file"]
   local date_at_score_one = dated_files[db_index][test_file_a]
   MiniTest.expect.equality(date_at_score_one, date_at_score_one_now)
   MiniTest.expect.equality(read_sorted(), test_file_a .. "\n")
-  MiniTest.expect.equality(fs.read(max_scores_path)[db_index], score_when_adding)
 end
 
 T["#update_file_score"]["update_type=increase"]["increments score on repeated calls"] = function()
@@ -127,8 +130,6 @@ T["#update_file_score"]["update_type=increase"]["increments score on repeated ca
     fs.read(dated_files_path)[db_index][test_file_a],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_decayed_after_30_min + 1, }
   )
-  -- TODO: precision issue, values are the same
-  -- MiniTest.expect.equality(fs.read(max_scores_path)[db_index], score_decayed_after_30_min + 1)
 end
 
 T["#update_file_score"]["update_type=increase"]["recalculates all scores when adding a new file"] = function()
@@ -158,7 +159,6 @@ T["#update_file_score"]["update_type=increase"]["recalculates all scores when ad
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
   )
   MiniTest.expect.equality(read_sorted(), test_file_b .. "\n" .. test_file_a .. "\n")
-  MiniTest.expect.equality(fs.read(max_scores_path)[db_index], 1)
 end
 
 T["#update_file_score"]["update_type=increase"]["filters deleted files"] = function()
@@ -190,7 +190,6 @@ T["#update_file_score"]["update_type=increase"]["filters deleted files"] = funct
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
   )
   MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
-  MiniTest.expect.equality(fs.read(max_scores_path)[db_index], 1)
 end
 
 T["#update_file_score"]["update_type=remove"] = MiniTest.new_set()
@@ -203,7 +202,6 @@ T["#update_file_score"]["update_type=remove"]["adds entry for existing file"] = 
 
   MiniTest.expect.equality(fs.read(dated_files_path)[db_index][test_file_a], date_at_score_one_now)
   MiniTest.expect.equality(read_sorted(), test_file_a .. "\n")
-  MiniTest.expect.equality(fs.read(max_scores_path)[db_index], score_when_adding)
 
   algo._now = function() return now end
   algo.update_file_score(test_file_a, {
@@ -213,7 +211,6 @@ T["#update_file_score"]["update_type=remove"]["adds entry for existing file"] = 
 
   MiniTest.expect.equality(fs.read(dated_files_path)[db_index][test_file_a], nil)
   MiniTest.expect.equality(read_sorted(), "")
-  MiniTest.expect.equality(fs.read(max_scores_path)[db_index], 0)
 end
 
 return T

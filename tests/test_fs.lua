@@ -1,3 +1,4 @@
+--- @diagnostic disable: duplicate-set-field
 local fs = require "fzf-lua-frecency.fs"
 local h = require "fzf-lua-frecency.helpers"
 
@@ -5,7 +6,6 @@ local root_dir = vim.fs.joinpath(vim.fn.getcwd(), "test-fs")
 local cwd = vim.fs.joinpath(root_dir, "files")
 local test_file = vim.fs.joinpath(cwd, "test.mpack")
 
-local T = MiniTest.new_set()
 
 local function write_file(path, contents)
   vim.fn.mkdir(vim.fs.dirname(path), "p")
@@ -26,13 +26,18 @@ local function cleanup()
   vim.fn.delete(root_dir, "rf")
 end
 
-T["#read"] = MiniTest.new_set {
+
+local T = MiniTest.new_set {
   hooks = {
     pre_case = cleanup,
     post_case = cleanup,
+    post_once = function()
+      vim.fn.delete(root_dir, "rf")
+    end,
   },
-}
 
+}
+T["#read"] = MiniTest.new_set()
 T["#read"]["returns empty table when file is missing"] = function()
   MiniTest.expect.equality(fs.read(test_file), {})
 end
@@ -56,13 +61,7 @@ T["#read"]["returns empty table and notifies on decode failure"] = function()
   MiniTest.expect.equality(called_err, true)
 end
 
-T["#write"] = MiniTest.new_set {
-  hooks = {
-    pre_case = cleanup,
-    post_case = cleanup,
-  },
-}
-
+T["#write"] = MiniTest.new_set()
 T["#write"]["writes encoded mpack data when encode = true"] = function()
   local data = { hello = "world", }
   fs.write { path = test_file, data = data, encode = true, }

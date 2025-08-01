@@ -1,3 +1,4 @@
+local h = require "fzf-lua-frecency.helpers"
 local M = {}
 
 function M.check()
@@ -10,11 +11,19 @@ function M.check()
     })
   end
 
-  if vim.fn.executable "fd" == 1 then
+  if vim.fn.executable "fdfind" == h.vimscript_true then
     vim.health.ok "'fd' is installed"
+  elseif vim.fn.executable "fd" == h.vimscript_true then
+    vim.health.ok "'fd' is installed"
+  elseif vim.fn.executable "rg" == h.vimscript_true then
+    vim.health.ok "'rg' is installed"
+  elseif vim.fn.executable "find" == h.vimscript_true then
+    vim.health.ok "'find' is installed"
   else
-    vim.health.error("'fd' is not installed", {
+    vim.health.error("'all_files' requires 'fd', 'rg', or 'find' to be installed", {
       "Install fd: https://github.com/sharkdp/fd",
+      "Install rg: https://github.com/BurntSushi/ripgrep",
+      "Install find: https://www.gnu.org/software/findutils/",
     })
   end
 end
