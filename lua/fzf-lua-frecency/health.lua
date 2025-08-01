@@ -26,14 +26,6 @@ function M.check()
       "Install find: https://www.gnu.org/software/findutils/",
     })
   end
-
-  if vim.fn.executable "awk" == h.vimscript_true then
-    vim.health.ok "'awk' is installed"
-  else
-    vim.health.error("'awk' is not installed", {
-      "On windows, one installation method for 'awk' is through the choco package manager: https://community.chocolatey.org/packages/awk",
-    })
-  end
 end
 
 return M

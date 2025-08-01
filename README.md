@@ -134,7 +134,6 @@ require('fzf-lua-frecency').frecency({
 
 - [fzf-lua](https://github.com/ibhagwan/fzf-lua)
 - [`fd`](https://github.com/sharkdp/fd), [`rg`](https://github.com/BurntSushi/ripgrep) or [`find`](https://www.gnu.org/software/findutils/)
-- `awk`
 - Neovim 0.9+
 
 ## Similar plugins
