@@ -70,6 +70,8 @@ M.exact_decimals = function(num, decimals)
   return M.min_decimals(M.max_decimals(num, decimals), decimals)
 end
 
+--- @param num number
+--- @param max_len number
 M.fit_decimals = function(num, max_len)
   local two_decimals = M.exact_decimals(num, 2)
 
