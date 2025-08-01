@@ -31,7 +31,6 @@ T["#frecency"]["builds the correct fzf command and calls fzf_exec"] = function()
   }
 
   fzf_lua.fzf_exec = function(cmd, opts)
-    print("cmd", cmd)
     called.cmd = cmd
     called.opts = opts
   end
@@ -44,7 +43,7 @@ T["#frecency"]["builds the correct fzf command and calls fzf_exec"] = function()
   MiniTest.expect.equality(called.opts.all_files, true)
 
   local cat_cmd = ("cat %s 2>/dev/null"):format(sorted_files_path)
-  local fd_cmd = "fd --absolute-path --type f --type l --exclude .git"
+  local fd_cmd = "fd --color=never --hidden --type f --type l --exclude .git"
   MiniTest.expect.equality(called.cmd, ("(%s; %s) | awk '!x[$0]++'"):format(cat_cmd, fd_cmd))
 end
 

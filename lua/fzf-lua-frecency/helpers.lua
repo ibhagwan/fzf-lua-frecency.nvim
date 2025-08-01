@@ -70,6 +70,22 @@ M.exact_decimals = function(num, decimals)
   return M.min_decimals(M.max_decimals(num, decimals), decimals)
 end
 
+M.fit_decimals = function(num, max_len)
+  local two_decimals = M.exact_decimals(num, 2)
+
+  if #two_decimals <= max_len then
+    return two_decimals
+  end
+
+  local one_decimal = M.exact_decimals(tonumber(two_decimals), 1)
+  if #one_decimal <= max_len then
+    return one_decimal
+  end
+
+  local no_decimals = M.exact_decimals(tonumber(two_decimals), 0)
+  return no_decimals
+end
+
 M.get_default_db_dir = function()
   return vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")
 end

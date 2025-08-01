@@ -43,6 +43,20 @@ T["#exact_decimals"]["truncates then formats to exact decimals"] = function()
   MiniTest.expect.equality(h.exact_decimals(5, 3), "5.000")
 end
 
+T["#fit_decimals"] = MiniTest.new_set()
+T["#fit_decimals"]["returns two decimals when it fits within max_len"] = function()
+  MiniTest.expect.equality(h.fit_decimals(123.45, 7), "123.45")
+  MiniTest.expect.equality(h.fit_decimals(1.23, 4), "1.23")
+end
+T["#fit_decimals"]["returns one decimal when two decimals are too long but one decimal fits"] = function()
+  MiniTest.expect.equality(h.fit_decimals(123.45, 5), "123.4")
+  MiniTest.expect.equality(h.fit_decimals(12.345, 5), "12.34")
+end
+T["#fit_decimals"]["returns no decimals when two decimals are too long"] = function()
+  MiniTest.expect.equality(h.fit_decimals(12345.67, 5), "12345")
+  MiniTest.expect.equality(h.fit_decimals(1234.56, 5), "1234")
+end
+
 T["#strip_score"] = MiniTest.new_set()
 T["#strip_score"]["removes leading numbers and spaces"] = function()
   MiniTest.expect.equality(h.strip_score "1.23 some/file/path", "some/file/path")

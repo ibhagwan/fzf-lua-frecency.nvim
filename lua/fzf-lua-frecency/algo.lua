@@ -69,7 +69,6 @@ M.update_file_score = function(filename, opts)
 
   local sorted_files_path = h.get_sorted_files_path(db_dir)
   local dated_files_path = h.get_dated_files_path(db_dir)
-  local max_scores_path = h.get_max_scores_path(db_dir)
 
   if debug then
     h.notify_debug_header("DEBUG: update_file_score %s", filename)
@@ -118,14 +117,11 @@ M.update_file_score = function(filename, opts)
   --- @type ScoredFile[]
   local scored_files = {}
   local updated_dated_files = {}
-  local max_score = 0
   for dated_file_entry, date_at_one_point_entry in pairs(dated_files[db_index]) do
     local recomputed_score = M.compute_score { now = now, date_at_score_one = date_at_one_point_entry, }
 
     local readable = vim.uv.fs_stat(dated_file_entry) ~= nil
-
     if readable then
-      max_score = math.max(max_score, recomputed_score)
       table.insert(scored_files, { filename = dated_file_entry, score = recomputed_score, })
       updated_dated_files[dated_file_entry] = date_at_one_point_entry
     end
@@ -134,13 +130,6 @@ M.update_file_score = function(filename, opts)
   fs.write {
     data = dated_files,
     path = dated_files_path,
-    encode = true,
-  }
-  local max_scores = fs.read(max_scores_path)
-  max_scores[db_index] = max_score
-  fs.write {
-    data = max_scores,
-    path = max_scores_path,
     encode = true,
   }
 
