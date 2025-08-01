@@ -15,6 +15,7 @@ local M = {}
 --- @field display_score boolean
 --- @field [string] any any fzf-lua option
 
+
 local function get_files_cmd(opts)
   -- https://github.com/ibhagwan/fzf-lua/blob/e40e2337611fa426b8bcb6989fc310035c6ec4aa/README.md?plain=1#L831-L833
   local default_fd_opts = [[--color=never --hidden --type f --type l --exclude .git]]
@@ -39,27 +40,39 @@ local function get_files_cmd(opts)
     return nil
   end
 
-  for k, v in pairs {
-    follow = opts.toggle_follow_flag or "-L",
-    hidden = opts.toggle_hidden_flag or "--hidden",
-    no_ignore = opts.toggle_ignore_flag or "--no-ignore",
-  } do
+  local toggle_flags = {
+    follow = h.default(opts.toggle_follow_flag, "-L"),
+    hidden = h.default(opts.toggle_hidden_flag, "--hidden"),
+    no_ignore = h.default(opts.toggle_ignore_flag, "--no-ignore"),
+  }
+
+  for flag_name, flag_value in pairs(toggle_flags) do
     (function()
-      local toggle, is_find = opts[k], nil
-      -- Do nothing unless opt was set
-      if opts[k] == nil then return end
+      --- @type boolean | nil
+      local flag_opt = opts[flag_name]
+      if flag_opt == nil then return end
       if cmd:match "^dir" then return end
+
+      local flag_to_use = flag_value
+      local toggle_value = flag_opt
+      local is_find_command = false
+
       if cmd:match "^find" then
-        if k == "no_ignore" then return end
-        if k == "hidden" then
-          is_find = true
-          toggle = not opts[k]
-          v = [[\! -path '*/.*']]
+        -- find doesn't support --no-ignore
+        if flag_name == "no_ignore" then return end
+
+        if flag_name == "hidden" then
+          -- find uses different syntax and inverted logic for hidden files
+          flag_to_use = [[\! -path '*/.*']]
+          toggle_value = not flag_opt
+          is_find_command = true
         end
       end
-      cmd = FzfLua.utils.toggle_cmd_flag(cmd, v, toggle, is_find)
+
+      cmd = FzfLua.utils.toggle_cmd_flag(cmd, flag_to_use, toggle_value, is_find_command)
     end)()
   end
+
   return cmd
 end
 
