@@ -6,13 +6,13 @@
   "diagnostics.globals": [
     "vim",
     "FzfLua",
-    "MiniTest",
+    "MiniTest"
   ],
   "diagnostics.disable": [
     "missing-fields"
   ],
   "workspace.library": [
     "$VIMRUNTIME",
-    "${3rd}/luv/library",
+    "${3rd}/luv/library"
   ]
 }
