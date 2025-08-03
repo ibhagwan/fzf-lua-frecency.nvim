@@ -137,7 +137,11 @@ M.setup = function(opts)
       local current_win = vim.api.nvim_get_current_win()
       -- :h nvim_win_get_config({window}) "relative is empty for normal buffers"
       if vim.api.nvim_win_get_config(current_win).relative == "" then
-        algo.update_file_score(vim.api.nvim_buf_get_name(ev.buf), { update_type = "increase", })
+        -- `nvim_buf_get_name` for unnamed buffers is an empty string
+        local bname = vim.api.nvim_buf_get_name(ev.buf)
+        if #bname > 0 then
+          algo.update_file_score(bname, { update_type = "increase", })
+        end
       end
     end,
   })
