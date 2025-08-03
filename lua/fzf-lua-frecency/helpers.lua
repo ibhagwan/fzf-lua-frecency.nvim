@@ -8,6 +8,13 @@ M.default = function(val, default_val)
   return val == nil and default_val or val
 end
 
+M.default_opts = {
+  debug = false,
+  stat_file = true,
+  db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"),
+  display_score = true,
+}
+
 --- @param level vim.log.levels
 --- @param msg string
 --- @param ... any
