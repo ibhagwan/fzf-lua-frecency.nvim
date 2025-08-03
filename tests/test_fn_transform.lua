@@ -77,7 +77,7 @@ T["#get_fn_transform"]["basic functionality"]["returns nil when FzfLua.make_entr
 end
 
 T["#get_fn_transform"]["display_score"] = MiniTest.new_set()
-T["#get_fn_transform"]["display_score"]["displays padded spaces for file not in db"] = function()
+T["#get_fn_transform"]["display_score"]["displays padded spaces for a file not in the db"] = function()
   local fn_transform = transform.get_fn_transform {
     stat_file = false,
     display_score = true,
@@ -89,7 +89,7 @@ T["#get_fn_transform"]["display_score"]["displays padded spaces for file not in 
   MiniTest.expect.equality(result, expected)
 end
 
-T["#get_fn_transform"]["display_score"]["displays score for file in db"] = function()
+T["#get_fn_transform"]["display_score"]["displays score for a file in the db"] = function()
   os.time = function() return now end
 
   algo.update_file_score(test_file_a, {
@@ -127,8 +127,8 @@ T["#get_fn_transform"]["display_score"]["displays decayed score"] = function()
   MiniTest.expect.equality(result, expected)
 end
 
-T["#get_fn_transform"]["stat_file"] = MiniTest.new_set()
-T["#get_fn_transform"]["stat_file"]["returns entry for existing file in db"] = function()
+T["#get_fn_transform"]["stat_file=true"] = MiniTest.new_set()
+T["#get_fn_transform"]["stat_file=true"]["returns entry for an existing file in the db"] = function()
   os.time = function() return now end
 
   algo.update_file_score(test_file_a, {
@@ -146,7 +146,8 @@ T["#get_fn_transform"]["stat_file"]["returns entry for existing file in db"] = f
   MiniTest.expect.equality(result, test_file_a)
 end
 
-T["#get_fn_transform"]["stat_file"]["returns entry for file not in db"] = function()
+-- i.e. from `fd`
+T["#get_fn_transform"]["stat_file=true"]["returns entry for a file not in the db"] = function()
   local fn_transform = transform.get_fn_transform {
     stat_file = true,
     display_score = false,
@@ -157,7 +158,7 @@ T["#get_fn_transform"]["stat_file"]["returns entry for file not in db"] = functi
   MiniTest.expect.equality(result, test_file_a)
 end
 
-T["#get_fn_transform"]["stat_file"]["returns nil for nonexistent file in db"] = function()
+T["#get_fn_transform"]["stat_file=true"]["returns nil for nonexistent files in the db"] = function()
   os.time = function() return now end
 
   algo.update_file_score(test_file_a, {
@@ -177,13 +178,12 @@ T["#get_fn_transform"]["stat_file"]["returns nil for nonexistent file in db"] = 
   MiniTest.expect.equality(result, nil)
 end
 
-T["#get_fn_transform"]["stat_file"]["returns nil for dirs in db"] = function()
+T["#get_fn_transform"]["stat_file=true"]["returns nil for directories in the db"] = function()
   os.time = function() return now end
 
   algo.update_file_score(test_dir_a, {
     db_dir = db_dir,
     update_type = "increase",
-    -- if `stat_file=true` then the dir won't be added in the first place
     stat_file = false,
   })
 
