@@ -15,7 +15,7 @@ M.read = function(path)
   local h = require "fzf-lua-frecency.helpers"
 
   -- vim.mpack.decode will throw
-  local decode_ok, decoded_data = pcall(vim.mpack.decode, encoded_data)
+  local decode_ok, decoded_data = pcall(vim.json.decode, encoded_data)
   if not decode_ok then
     h.notify_error("ERROR: vim.mpack.decode threw: %s", decoded_data)
     return {}
@@ -49,7 +49,7 @@ M.write = function(opts)
 
   if opts.encode then
     -- vim.mpack.encode will throw
-    local encode_ok, encoded_data = pcall(vim.mpack.encode, opts.data)
+    local encode_ok, encoded_data = pcall(vim.json.encode, opts.data)
     if encode_ok then
       file:write(encoded_data)
     else

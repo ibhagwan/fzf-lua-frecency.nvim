@@ -155,6 +155,11 @@ M.setup = function(opts)
           debug = debug,
           stat_file = stat_file,
         })
+        -- `nvim_buf_get_name` for unnamed buffers is an empty string
+        local bname = vim.api.nvim_buf_get_name(ev.buf)
+        if #bname > 0 then
+          algo.update_file_score(bname, { update_type = "increase", })
+        end
       end
     end,
   })
