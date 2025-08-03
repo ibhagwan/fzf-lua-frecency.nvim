@@ -16,6 +16,7 @@ local M = {}
 --- @field [string] any any fzf-lua option
 
 
+--- @param opts FrecencyFnOpts
 local function get_files_cmd(opts)
   -- https://github.com/ibhagwan/fzf-lua/blob/e40e2337611fa426b8bcb6989fc310035c6ec4aa/README.md?plain=1#L831-L833
   local default_fd_opts = [[--absolute-path --color=never --hidden --type f --type l --exclude .git]]
@@ -76,7 +77,7 @@ local function get_files_cmd(opts)
   return cmd
 end
 
---- @diagnostic disable-next-line: unused-local
+--- @param opts? FrecencyFnOpts
 M.setup = function(opts)
   if M._did_setup then return end
   M._did_setup = true
@@ -84,7 +85,12 @@ M.setup = function(opts)
   -- creates the FzfLua global object
   require "fzf-lua"
 
-  FzfLua.register_extension("frecency", M.frecency, vim.tbl_deep_extend("keep", opts or {}, {
+  opts = opts or {}
+  local db_dir = h.default(opts.db_dir, h.default_opts.db_dir)
+  local debug = h.default(opts.debug, h.default_opts.debug)
+  local stat_file = h.default(opts.stat_file, h.default_opts.stat_file)
+
+  FzfLua.register_extension("frecency", M.frecency, vim.tbl_deep_extend("keep", opts, {
       -- fzf-lua-frecency specific defaults
       cwd_only = false,
       all_files = nil,
@@ -120,7 +126,13 @@ M.setup = function(opts)
           fn = function(selected, o)
             for _, sel in ipairs(selected) do
               local filename = FzfLua.path.entry_to_file(sel, o).path
-              algo.update_file_score(filename, { update_type = "remove", })
+              print("filename", filename)
+              algo.update_file_score(filename, {
+                update_type = "remove",
+                db_dir = db_dir,
+                debug = debug,
+                stat_file = stat_file,
+              })
             end
           end,
           desc = "delete-score",
@@ -137,13 +149,18 @@ M.setup = function(opts)
       local current_win = vim.api.nvim_get_current_win()
       -- :h nvim_win_get_config({window}) "relative is empty for normal buffers"
       if vim.api.nvim_win_get_config(current_win).relative == "" then
-        algo.update_file_score(vim.api.nvim_buf_get_name(ev.buf), { update_type = "increase", })
+        algo.update_file_score(vim.api.nvim_buf_get_name(ev.buf), {
+          update_type = "increase",
+          db_dir = db_dir,
+          debug = debug,
+          stat_file = stat_file,
+        })
       end
     end,
   })
 end
 
---- @param opts FrecencyFnOpts
+--- @param opts? FrecencyFnOpts
 M.frecency = function(opts)
   -- does nothing if already called
   M.setup()
@@ -152,7 +169,10 @@ M.frecency = function(opts)
   if not opts then return end
 
   opts.cwd = h.default(opts.cwd, vim.uv.cwd())
-  local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
+  local db_dir = h.default(opts.db_dir, h.default_opts.db_dir)
+  local stat_file = h.default(opts.stat_file, h.default_opts.stat_file)
+  local display_score = h.default(opts.display_score, h.default_opts.display_score)
+
   local sorted_files_path = h.get_sorted_files_path(db_dir)
 
   -- options that fzf-lua's multiprocess does not serialize
@@ -160,8 +180,8 @@ M.frecency = function(opts)
   --- @type GetFnTransformOpts
   local encodeable_opts = {
     db_dir = db_dir,
-    stat_file = opts.stat_file,
-    display_score = opts.display_score,
+    stat_file = stat_file,
+    display_score = display_score,
   }
 
   opts.fn_selected = function(...)
@@ -215,7 +235,7 @@ end
 --- @param opts? ClearDbOpts
 M.clear_db = function(opts)
   opts = opts or {}
-  local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
+  local db_dir = h.default(opts.db_dir, h.default_opts.db_dir)
   local sorted_files_path = h.get_sorted_files_path(db_dir)
   local dated_files_path = h.get_dated_files_path(db_dir)
   local max_scores_path = h.get_max_scores_path(db_dir)

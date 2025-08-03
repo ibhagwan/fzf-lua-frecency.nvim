@@ -49,6 +49,7 @@ end
 --- @field db_dir? string
 --- @field debug? boolean
 --- @field prepend_score? boolean
+--- @field stat_file? boolean
 
 --- @param filename string
 --- @param opts UpdateFileScoreOpts
@@ -63,9 +64,11 @@ M.update_file_score = function(filename, opts)
   local fs = require "fzf-lua-frecency.fs"
   local h = require "fzf-lua-frecency.helpers"
   local db_index = 1 -- We only use index 1 everywhere
-  local db_dir = h.default(opts.db_dir, h.get_default_db_dir())
-  local debug = h.default(opts.debug, false)
   local prepend_score = h.default(opts.prepend_score, false)
+
+  local db_dir = h.default(opts.db_dir, h.default_opts.db_dir)
+  local debug = h.default(opts.debug, h.default_opts.debug)
+  local stat_file = h.default(opts.stat_file, h.default_opts.stat_file)
 
   local sorted_files_path = h.get_sorted_files_path(db_dir)
   local dated_files_path = h.get_dated_files_path(db_dir)
@@ -120,8 +123,14 @@ M.update_file_score = function(filename, opts)
   for dated_file_entry, date_at_one_point_entry in pairs(dated_files[db_index]) do
     local recomputed_score = M.compute_score { now = now, date_at_score_one = date_at_one_point_entry, }
 
-    local readable = vim.uv.fs_stat(dated_file_entry) ~= nil
-    if readable then
+    local should_insert = true
+    if stat_file then
+      local stat_result = vim.uv.fs_stat(dated_file_entry)
+      local readable = stat_result ~= nil and stat_result.type == "file"
+      should_insert = readable
+    end
+
+    if should_insert then
       table.insert(scored_files, { filename = dated_file_entry, score = recomputed_score, })
       updated_dated_files[dated_file_entry] = date_at_one_point_entry
     end
