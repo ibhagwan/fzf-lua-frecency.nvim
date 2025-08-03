@@ -7,7 +7,7 @@ local __RTP__ = vim.fn.fnamemodify(__FILE__, ":h:h:h")
 
 local M = {}
 
---- @class FrecencyFnOpts
+--- @class FrecencyOpts
 --- @field debug boolean
 --- @field db_dir string
 --- @field all_files boolean
@@ -16,7 +16,7 @@ local M = {}
 --- @field [string] any any fzf-lua option
 
 
---- @param opts FrecencyFnOpts
+--- @param opts FrecencyOpts
 local function get_files_cmd(opts)
   -- https://github.com/ibhagwan/fzf-lua/blob/e40e2337611fa426b8bcb6989fc310035c6ec4aa/README.md?plain=1#L831-L833
   local default_fd_opts = [[--absolute-path --color=never --hidden --type f --type l --exclude .git]]
@@ -77,7 +77,7 @@ local function get_files_cmd(opts)
   return cmd
 end
 
---- @param opts? FrecencyFnOpts
+--- @param opts? FrecencyOpts
 M.setup = function(opts)
   if M._did_setup then return end
   M._did_setup = true
@@ -164,7 +164,7 @@ M.setup = function(opts)
   })
 end
 
---- @param opts? FrecencyFnOpts
+--- @param opts? FrecencyOpts
 M.frecency = function(opts)
   -- does nothing if already called
   M.setup()

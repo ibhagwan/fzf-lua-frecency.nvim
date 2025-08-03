@@ -18,7 +18,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 
 ```lua
 
---- @class FrecencyFnOpts
+--- @class FrecencyOpts
 --- @field debug boolean
 --- @field db_dir string
 --- @field all_files boolean
@@ -26,7 +26,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 --- @field display_score boolean
 --- @field [string] any any fzf-lua option
 
---- @param opts FrecencyFnOpts
+--- @param opts FrecencyOpts
 require('fzf-lua-frecency').frecency()
 require('fzf-lua-frecency').frecency({
    -- any fzf-lua option
