@@ -126,7 +126,6 @@ M.setup = function(opts)
           fn = function(selected, o)
             for _, sel in ipairs(selected) do
               local filename = FzfLua.path.entry_to_file(sel, o).path
-              print("filename", filename)
               algo.update_file_score(filename, {
                 update_type = "remove",
                 db_dir = db_dir,

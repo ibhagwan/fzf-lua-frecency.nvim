@@ -15,7 +15,6 @@ M.default_opts = {
   display_score = true,
 }
 
-
 --- @param level vim.log.levels
 --- @param msg string
 --- @param ... any
