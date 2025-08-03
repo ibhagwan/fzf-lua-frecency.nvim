@@ -88,27 +88,38 @@ M.update_file_score = function(filename, opts)
     h.notify_debug("dated_files: %s", vim.inspect(dated_files))
   end
 
-  local updated_date_at_score_one
-  if opts.update_type == "increase" then
-    local score = 0
-    local date_at_score_one = dated_files[db_index][filename]
-    if date_at_score_one then
-      score = M.compute_score { now = now, date_at_score_one = date_at_score_one, }
-    end
-    local updated_score = score + 1
-    updated_date_at_score_one = M.compute_date_at_score_one { now = now, score = updated_score, }
+  local updated_date_at_score_one = (function()
+    if opts.update_type == "increase" then
+      local should_update = true
+      if stat_file then
+        local stat_result = vim.uv.fs_stat(filename)
+        local readable = stat_result ~= nil and stat_result.type == "file"
+        should_update = readable
+      end
+      if not should_update then
+        return nil
+      end
 
-    if debug then
-      h.notify_debug(
-        "date_at_score_one: %s",
-        date_at_score_one and _get_pretty_date(date_at_score_one) or "no date_at_score_one"
-      )
-      h.notify_debug("score: %s", score)
-      h.notify_debug("updated_score: %s", updated_score)
+      local score = 0
+      local date_at_score_one = dated_files[db_index][filename]
+      if date_at_score_one then
+        score = M.compute_score { now = now, date_at_score_one = date_at_score_one, }
+      end
+      local updated_score = score + 1
+      if debug then
+        h.notify_debug(
+          "date_at_score_one: %s",
+          date_at_score_one and _get_pretty_date(date_at_score_one) or "no date_at_score_one"
+        )
+        h.notify_debug("score: %s", score)
+        h.notify_debug("updated_score: %s", updated_score)
+      end
+
+      return M.compute_date_at_score_one { now = now, score = updated_score, }
     end
-  else
-    updated_date_at_score_one = nil
-  end
+
+    return nil
+  end)()
 
   if debug then
     h.notify_debug("updated_date_at_score_one: %s", _get_pretty_date(updated_date_at_score_one))

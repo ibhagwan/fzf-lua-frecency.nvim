@@ -38,8 +38,8 @@ M.get_fn_transform = function(rpc_opts)
     -- only call fs_stat on files from the db, fd/rg files are guaranteed to exist
     if rpc_opts.stat_file and date_at_score_one then
       local stat_result = vim.uv.fs_stat(abs_file)
-      if not stat_result then return end
-      if stat_result.type ~= "file" then return end
+      if not stat_result then return nil end
+      if stat_result.type ~= "file" then return nil end
     end
 
     if rpc_opts.display_score then
