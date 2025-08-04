@@ -14,10 +14,38 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 - Files are processed for the picker UI by headless Neovim instances (`fzf-lua`'s `multiprocess=true` option). 
   - `fzf-lua-frecency` uses string interpolation to embed user configuration options into the headless instances
 
-## Usage
+## Example Usage
+
+> [!TIP]
+> After running frecency for the first time (or after calling `setup`), `fzf-lua-frecency`
+> will register as an `fzf-lua` extension, extending the `:FzfLua` command:
+> ```lua
+> :FzfLua frecency cwd_only=true all_files=false
+>```
+
+### Global frecency files: a scored version of `oldfiles`
 
 ```lua
+require('fzf-lua-frecency').frecency()
+```
+```vim
+:FzfLua frecency
+```
 
+### A smarter-file picker: all files in the `cwd` with frecency-scored files listed first
+
+```lua
+require('fzf-lua-frecency').frecency({
+    cwd_only = true,     
+})
+```
+```vim
+:FzfLua frecency cwd_only=true
+```
+
+## API
+
+```lua
 --- @class FrecencyOpts
 --- @field debug boolean
 --- @field db_dir string
@@ -45,13 +73,6 @@ require('fzf-lua-frecency').frecency({
     display_score = true,
 })
 ```
-
-> [!TIP]
-> After running frecency for the first time (or after calling `setup`), `fzf-lua-frecency`
-> will register as an `fzf-lua` extension, extending the `:FzfLua` command:
-> ```lua
-> :FzfLua frecency cwd_only=true all_files=false
->```
 
 ```lua
 --- @class ClearDbOpts

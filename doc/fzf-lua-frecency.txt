@@ -4,7 +4,10 @@
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
 
 Performance ................................... |fzf-lua-frecency-performance|
-Usage ............................................... |fzf-lua-frecency-usage|
+Example Usage ............................... |fzf-lua-frecency-example-usage|
+Global frecency files: a scored version of `oldfiles`  |fzf-lua-frecency-global-frecency-files:-a-scored-version-of-`oldfiles|
+A smarter-file picker: all files in the `cwd` with frecency-scored files listed first  |fzf-lua-frecency-a-smarter-file-picker:-all-files-in-the-`cwd`-with-frecency-scored-files-listed-first|
+API ................................................... |fzf-lua-frecency-api|
 Default `FzfLua` opts ............... |fzf-lua-frecency-default-`fzflua`-opts|
 How it works ................................. |fzf-lua-frecency-how-it-works|
 Dependencies ................................. |fzf-lua-frecency-dependencies|
@@ -40,11 +43,44 @@ PERFORMANCE                                     *fzf-lua-frecency-performance*
   instances
 
 ------------------------------------------------------------------------------
-USAGE                                                 *fzf-lua-frecency-usage*
+EXAMPLE USAGE                                 *fzf-lua-frecency-example-usage*
+
+
+  [!TIP] After running frecency for the first time (or after calling `setup`),
+  `fzf-lua-frecency` will register as an `fzf-lua` extension, extending the
+  `:FzfLua` command:
+>lua
+    :FzfLua frecency cwd_only=true all_files=false
+<
+
+
+                                                                              
+GLOBAL FRECENCY FILES: A SCORED VERSION OF `OLDFILES`*fzf-lua-frecency-global-frecency-files:-a-scored-version-of-`oldfiles*
+
+>lua
+    require('fzf-lua-frecency').frecency()
+<
+>vim
+    :FzfLua frecency
+<
+
+                                                                              
+A SMARTER-FILE PICKER: ALL FILES IN THE `CWD` WITH FRECENCY-SCORED FILES LISTED FIRST*fzf-lua-frecency-a-smarter-file-picker:-all-files-in-the-`cwd`-with-frecency-scored-files-listed-first*
+
+>lua
+    require('fzf-lua-frecency').frecency({
+        cwd_only = true,     
+    })
+<
+>vim
+    :FzfLua frecency cwd_only=true
+<
+
+------------------------------------------------------------------------------
+API                                                     *fzf-lua-frecency-api*
 
 
 >lua
-    
     --- @class FrecencyOpts
     --- @field debug boolean
     --- @field db_dir string
@@ -72,13 +108,6 @@ USAGE                                                 *fzf-lua-frecency-usage*
         display_score = true,
     })
 <
-  [!TIP] After running frecency for the first time (or after calling `setup`),
-  `fzf-lua-frecency` will register as an `fzf-lua` extension, extending the
-  `:FzfLua` command:
->lua
-    :FzfLua frecency cwd_only=true all_files=false
-<
-
 >lua
     --- @class ClearDbOpts
     --- @field db_dir? string
