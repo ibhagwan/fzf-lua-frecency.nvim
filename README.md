@@ -16,6 +16,26 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 
 ## Example Usage
 
+### Global frecency files: a scored version of `oldfiles`
+
+```lua
+require('fzf-lua-frecency').frecency()
+```
+```vimscript
+:FzfLua frecency
+```
+
+### A smarter file picker: all files in the `cwd` with frecency-scored files listed first
+
+```lua
+require('fzf-lua-frecency').frecency({
+    cwd_only = true,     
+})
+```
+```vimscript
+:FzfLua frecency cwd_only=true
+```
+
 > [!TIP]
 > After running frecency for the first time (or after calling `setup`), `fzf-lua-frecency`
 > will register as an `fzf-lua` extension, extending the `:FzfLua` command:
@@ -23,25 +43,6 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 > :FzfLua frecency cwd_only=true all_files=false
 >```
 
-### Global frecency files: a scored version of `oldfiles`
-
-```lua
-require('fzf-lua-frecency').frecency()
-```
-```vim
-:FzfLua frecency
-```
-
-### A smarter-file picker: all files in the `cwd` with frecency-scored files listed first
-
-```lua
-require('fzf-lua-frecency').frecency({
-    cwd_only = true,     
-})
-```
-```vim
-:FzfLua frecency cwd_only=true
-```
 
 ## API
 
