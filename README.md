@@ -9,7 +9,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 ## Performance
 `fzf-lua-frecency.nvim` prioritizes performance in a few ways:
 
-- Frecency scores are sorted when a file is selected from the picker, _not_ when populating the picker UI.
+- Frecency scores are sorted after a file is opened, _not_ when populating the picker UI.
 - The picker UI opens instantly, with frecency-ranked files and `fd` results streaming in over time.
 - Files are processed for the picker UI by headless Neovim instances (`fzf-lua`'s `multiprocess=true` option). 
   - `fzf-lua-frecency` uses string interpolation to embed user configuration options into the headless instances
@@ -47,8 +47,8 @@ require('fzf-lua-frecency').frecency({
 ```
 
 > [!TIP]
-> After running frecency for the first time (or after calling `setup`), fzf-lua-frecency
-> will register as an fzf-lua extension, extending the `:FzfLua` command:
+> After running frecency for the first time (or after calling `setup`), `fzf-lua-frecency`
+> will register as an `fzf-lua` extension, extending the `:FzfLua` command:
 > ```lua
 > :FzfLua frecency cwd_only=true all_files=false
 >```
@@ -93,9 +93,10 @@ By default, the following options are passed along to `FzfLua.fzf_exec`:
 ```lua
 local opts = {
   -- the default actions for FzfLua files, with an additional
-  -- ["ctrl-x"] -- action to remove a file's frecency score
+  -- ["ctrl-x"] action to remove a file's frecency score
   actions      = actions,    
-  previewer    = previewer,  -- FzfLua's default previewer
+  -- FzfLua's default previewer
+  previewer    = previewer,  
   file_icons   = true,
   color_icons  = true,
   git_icons    = false,
@@ -109,8 +110,8 @@ local opts = {
   fn_transform = function(abs_file, opts)
     local entry = FzfLua.make_entry.file(rel_file, opts)
     -- ...
-    -- prepends the frecency score if `display_score` is true
-    -- removes files that no longer exist if `stat_file` is true
+    -- prepends the frecency score if `display_score=true`
+    -- filters out files that no longer exist if `stat_file=true`
     -- ...
     return entry
   end,
@@ -146,6 +147,7 @@ require('fzf-lua-frecency').frecency({
 ## Similar plugins
 - [telescope-frecency.nvim](https://github.com/nvim-telescope/telescope-frecency.nvim)
 - [smart-open.nvim](https://github.com/danielfalk/smart-open.nvim)
+- [fff.nvim](https://github.com/dmtrKovalenko/fff.nvim)
 - [snacks.nvim's smart picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md#smart)
 - [fre integration with fzf-lua](https://github.com/ibhagwan/fzf-lua/discussions/2174)
 - [fzf-lua-enchanted-files](https://github.com/otavioschwanck/fzf-lua-enchanted-files)
