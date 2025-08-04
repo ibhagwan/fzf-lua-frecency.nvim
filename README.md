@@ -6,17 +6,16 @@ A frecency-based file picker for [fzf-lua](https://github.com/ibhagwan/fzf-lua) 
 
 Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozilla's frecency algorithm.
 
-## Performance
-`fzf-lua-frecency.nvim` prioritizes performance in a few ways:
-
-- Frecency scores are sorted after a file is opened, _not_ when populating the picker UI.
-- The picker UI opens instantly, with frecency-ranked files and `fd` results streaming in over time.
-- Files are processed for the picker UI by headless Neovim instances (`fzf-lua`'s `multiprocess=true` option). 
-  - `fzf-lua-frecency` uses string interpolation to embed user configuration options into the headless instances
-
 ## Example Usage
 
-### Global frecency files: a scored version of `oldfiles`
+> [!TIP]
+> After running frecency for the first time (or after calling `setup`), `fzf-lua-frecency`
+> will register as an `fzf-lua` extension, extending the `:FzfLua` command:
+> ```lua
+> :FzfLua frecency cwd_only=true all_files=false
+>```
+
+### All frecency-ranked files: a scored version of `oldfiles`
 
 ```lua
 require('fzf-lua-frecency').frecency()
@@ -35,14 +34,6 @@ require('fzf-lua-frecency').frecency({
 ```vimscript
 :FzfLua frecency cwd_only=true
 ```
-
-> [!TIP]
-> After running frecency for the first time (or after calling `setup`), `fzf-lua-frecency`
-> will register as an `fzf-lua` extension, extending the `:FzfLua` command:
-> ```lua
-> :FzfLua frecency cwd_only=true all_files=false
->```
-
 
 ## API
 
@@ -159,6 +150,14 @@ require('fzf-lua-frecency').frecency({
 - The files are sorted based on current score and output to a `txt` file.
   - Files that are no longer available (i.e. deleted, renamed, moved) are also filtered during this step.
 - When the picker is invoked, the `txt` file is read and its content are streamed into the UI. After the frecent files are fully populated, the results from `fd` are streamed in also. This ensures that the frecent files appear first, while also incrementally populating the picker UI.
+
+## Performance
+`fzf-lua-frecency.nvim` prioritizes performance in a few ways:
+
+- Frecency scores are sorted after a file is opened, _not_ when populating the picker UI.
+- The picker UI opens instantly, with frecency-ranked files and `fd` results streaming in over time.
+- Files are processed for the picker UI by headless Neovim instances (`fzf-lua`'s `multiprocess=true` option). 
+  - `fzf-lua-frecency` uses string interpolation to embed user configuration options into the headless instances
 
 ## Dependencies
 
