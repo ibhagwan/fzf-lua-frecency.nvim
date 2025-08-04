@@ -12,6 +12,7 @@ local dated_files_path = h.get_dated_files_path(db_dir)
 local cwd = vim.fs.joinpath(root_dir, "files")
 local test_file_a = vim.fs.joinpath(cwd, "test-file-a.txt")
 local test_file_b = vim.fs.joinpath(cwd, "test-file-b.txt")
+local test_dir_a = vim.fs.joinpath(cwd, "test-dir-a")
 
 local now = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 0, sec = 0, }
 local now_after_30_min = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 30, sec = 0, }
@@ -45,6 +46,7 @@ local function cleanup()
   vim.fn.delete(root_dir, "rf")
   create_file(test_file_a)
   create_file(test_file_b)
+  vim.fn.mkdir(test_dir_a, "p")
 end
 
 local T = MiniTest.new_set()
@@ -161,11 +163,12 @@ T["#update_file_score"]["update_type=increase"]["recalculates all scores when ad
   MiniTest.expect.equality(read_sorted(), test_file_b .. "\n" .. test_file_a .. "\n")
 end
 
-T["#update_file_score"]["update_type=increase"]["filters deleted files"] = function()
+T["#update_file_score"]["update_type=increase"]["filters deleted files when stat_file=true"] = function()
   algo._now = function() return now end
   algo.update_file_score(test_file_a, {
     db_dir = db_dir,
     update_type = "increase",
+    stat_file = false,
   })
 
   MiniTest.expect.equality(
@@ -173,12 +176,13 @@ T["#update_file_score"]["update_type=increase"]["filters deleted files"] = funct
     date_at_score_one_now
   )
 
-  os.remove(test_file_a)
+  vim.fn.delete(test_file_a)
 
   algo._now = function() return now_after_30_min end
   algo.update_file_score(test_file_b, {
     db_dir = db_dir,
     update_type = "increase",
+    stat_file = true,
   })
 
   MiniTest.expect.equality(
@@ -192,8 +196,73 @@ T["#update_file_score"]["update_type=increase"]["filters deleted files"] = funct
   MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
 end
 
+T["#update_file_score"]["update_type=increase"]["avoids adding deleted files when stat_file=true"] = function()
+  algo._now = function() return now end
+
+  vim.fn.delete(test_file_a)
+  algo.update_file_score(test_file_a, {
+    db_dir = db_dir,
+    update_type = "increase",
+    stat_file = true,
+  })
+
+  MiniTest.expect.equality(
+    fs.read(dated_files_path)[db_index][test_file_a],
+    nil
+  )
+end
+
+T["#update_file_score"]["update_type=increase"]["filters directories when stat_file=true"] = function()
+  algo._now = function() return now end
+  algo.update_file_score(test_dir_a, {
+    db_dir = db_dir,
+    update_type = "increase",
+    stat_file = false,
+  })
+
+  MiniTest.expect.equality(
+    fs.read(dated_files_path)[db_index][test_dir_a],
+    date_at_score_one_now
+  )
+
+  vim.fn.delete(test_dir_a)
+
+  algo._now = function() return now_after_30_min end
+  algo.update_file_score(test_file_b, {
+    db_dir = db_dir,
+    update_type = "increase",
+    stat_file = true,
+  })
+
+  MiniTest.expect.equality(
+    fs.read(dated_files_path)[db_index][test_dir_a],
+    nil
+  )
+  MiniTest.expect.equality(
+    fs.read(dated_files_path)[db_index][test_file_b],
+    algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
+  )
+  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
+end
+
+T["#update_file_score"]["update_type=increase"]["avoids adding directories when stat_file=true"] = function()
+  algo._now = function() return now end
+
+  vim.fn.delete(test_dir_a)
+  algo.update_file_score(test_dir_a, {
+    db_dir = db_dir,
+    update_type = "increase",
+    stat_file = true,
+  })
+
+  MiniTest.expect.equality(
+    fs.read(dated_files_path)[db_index][test_dir_a],
+    nil
+  )
+end
+
 T["#update_file_score"]["update_type=remove"] = MiniTest.new_set()
-T["#update_file_score"]["update_type=remove"]["adds entry for existing file"] = function()
+T["#update_file_score"]["update_type=remove"]["removes entry for existing file"] = function()
   algo._now = function() return now end
   algo.update_file_score(test_file_a, {
     db_dir = db_dir,

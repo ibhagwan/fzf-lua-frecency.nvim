@@ -8,6 +8,7 @@ local db_dir = vim.fs.joinpath(root_dir, "db-dir")
 local cwd = vim.fs.joinpath(root_dir, "files")
 local test_file_a = vim.fs.joinpath(cwd, "test-file-a.txt")
 local test_file_b = vim.fs.joinpath(cwd, "test-file-b.txt")
+local test_dir_a = vim.fs.joinpath(cwd, "test-dir-a")
 
 local now = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 0, sec = 0, }
 local now_after_30_min = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 30, sec = 0, }
@@ -23,21 +24,16 @@ local function create_file(path)
 end
 
 local os_time = os.time
-local vim_schedule = vim.schedule
-local vim_uv_fs_stat = vim.uv.fs_stat
-local algo_update_file_score = algo.update_file_score
 
 local function cleanup()
   os.time = os_time
-  vim.schedule = vim_schedule
-  vim.uv.fs_stat = vim_uv_fs_stat
-  algo.update_file_score = algo_update_file_score
 
   _G.FzfLua.make_entry.file = function(filename) return filename end
   _G._fzf_lua_frecency_dated_files = nil
   vim.fn.delete(root_dir, "rf")
   create_file(test_file_a)
   create_file(test_file_b)
+  vim.fn.mkdir(test_dir_a, "p")
 end
 
 local T = MiniTest.new_set()
@@ -81,7 +77,7 @@ T["#get_fn_transform"]["basic functionality"]["returns nil when FzfLua.make_entr
 end
 
 T["#get_fn_transform"]["display_score"] = MiniTest.new_set()
-T["#get_fn_transform"]["display_score"]["displays padded spaces for file not in db"] = function()
+T["#get_fn_transform"]["display_score"]["displays padded spaces for a file not in the db"] = function()
   local fn_transform = transform.get_fn_transform {
     stat_file = false,
     display_score = true,
@@ -93,7 +89,7 @@ T["#get_fn_transform"]["display_score"]["displays padded spaces for file not in 
   MiniTest.expect.equality(result, expected)
 end
 
-T["#get_fn_transform"]["display_score"]["displays score for file in db"] = function()
+T["#get_fn_transform"]["display_score"]["displays score for a file in the db"] = function()
   os.time = function() return now end
 
   algo.update_file_score(test_file_a, {
@@ -131,8 +127,8 @@ T["#get_fn_transform"]["display_score"]["displays decayed score"] = function()
   MiniTest.expect.equality(result, expected)
 end
 
-T["#get_fn_transform"]["stat_file"] = MiniTest.new_set()
-T["#get_fn_transform"]["stat_file"]["returns entry for existing file in db"] = function()
+T["#get_fn_transform"]["stat_file=true"] = MiniTest.new_set()
+T["#get_fn_transform"]["stat_file=true"]["returns entry for an existing file in the db"] = function()
   os.time = function() return now end
 
   algo.update_file_score(test_file_a, {
@@ -150,7 +146,8 @@ T["#get_fn_transform"]["stat_file"]["returns entry for existing file in db"] = f
   MiniTest.expect.equality(result, test_file_a)
 end
 
-T["#get_fn_transform"]["stat_file"]["returns entry for file not in db"] = function()
+-- i.e. from `fd`
+T["#get_fn_transform"]["stat_file=true"]["returns entry for a file not in the db"] = function()
   local fn_transform = transform.get_fn_transform {
     stat_file = true,
     display_score = false,
@@ -161,7 +158,7 @@ T["#get_fn_transform"]["stat_file"]["returns entry for file not in db"] = functi
   MiniTest.expect.equality(result, test_file_a)
 end
 
-T["#get_fn_transform"]["stat_file"]["schedules removal for nonexistent file in db"] = function()
+T["#get_fn_transform"]["stat_file=true"]["returns nil for nonexistent files in the db"] = function()
   os.time = function() return now end
 
   algo.update_file_score(test_file_a, {
@@ -169,23 +166,7 @@ T["#get_fn_transform"]["stat_file"]["schedules removal for nonexistent file in d
     update_type = "increase",
   })
 
-  vim.uv.fs_stat = function(path)
-    if path == test_file_a then
-      return nil
-    end
-  end
-
-  local scheduled_fn = nil
-  vim.schedule = function(fn)
-    scheduled_fn = fn
-  end
-
-  local update_called = false
-  local update_args = {}
-  algo.update_file_score = function(filename, opts)
-    update_called = true
-    update_args = { filename, opts, }
-  end
+  vim.fn.delete(test_file_a)
 
   local fn_transform = transform.get_fn_transform {
     stat_file = true,
@@ -195,12 +176,25 @@ T["#get_fn_transform"]["stat_file"]["schedules removal for nonexistent file in d
 
   local result = fn_transform(test_file_a, {})
   MiniTest.expect.equality(result, nil)
-  MiniTest.expect.equality(type(scheduled_fn), "function")
+end
 
-  scheduled_fn()
-  MiniTest.expect.equality(update_called, true)
-  MiniTest.expect.equality(update_args[1], test_file_a)
-  MiniTest.expect.equality(update_args[2].update_type, "remove")
+T["#get_fn_transform"]["stat_file=true"]["returns nil for directories in the db"] = function()
+  os.time = function() return now end
+
+  algo.update_file_score(test_dir_a, {
+    db_dir = db_dir,
+    update_type = "increase",
+    stat_file = false,
+  })
+
+  local fn_transform = transform.get_fn_transform {
+    stat_file = true,
+    display_score = false,
+    db_dir = db_dir,
+  }
+
+  local result = fn_transform(test_dir_a, {})
+  MiniTest.expect.equality(result, nil)
 end
 
 T["#get_fn_transform"]["combined options"] = MiniTest.new_set()
@@ -231,12 +225,7 @@ T["#get_fn_transform"]["combined options"]["stat_file and display_score for none
     update_type = "increase",
   })
 
-  vim.uv.fs_stat = function(path)
-    if path == test_file_a then
-      return nil
-    end
-  end
-  vim.schedule = function() end
+  vim.fn.delete(test_file_a)
 
   local fn_transform = transform.get_fn_transform {
     stat_file = true,

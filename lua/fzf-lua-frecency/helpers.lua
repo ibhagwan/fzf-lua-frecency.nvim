@@ -8,6 +8,13 @@ M.default = function(val, default_val)
   return val == nil and default_val or val
 end
 
+M.default_opts = {
+  debug = false,
+  stat_file = true,
+  db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"),
+  display_score = true,
+}
+
 --- @param level vim.log.levels
 --- @param msg string
 --- @param ... any
@@ -88,25 +95,21 @@ M.fit_decimals = function(num, max_len)
   return no_decimals
 end
 
-M.get_default_db_dir = function()
-  return vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")
-end
-
 --- @param db_dir string
 M.get_sorted_files_path = function(db_dir)
-  db_dir = M.default(db_dir, M.get_default_db_dir())
+  db_dir = M.default(db_dir, M.default_opts.db_dir)
   return vim.fs.joinpath(db_dir, "sorted-files.txt")
 end
 
 --- @param db_dir string
 M.get_dated_files_path = function(db_dir)
-  db_dir = M.default(db_dir, M.get_default_db_dir())
+  db_dir = M.default(db_dir, M.default_opts.db_dir)
   return vim.fs.joinpath(db_dir, "dated-files.mpack")
 end
 
 --- @param db_dir string
 M.get_max_scores_path = function(db_dir)
-  db_dir = M.default(db_dir, M.get_default_db_dir())
+  db_dir = M.default(db_dir, M.default_opts.db_dir)
   return vim.fs.joinpath(db_dir, "max-scores.mpack")
 end
 

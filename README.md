@@ -18,7 +18,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 
 ```lua
 
---- @class FrecencyFnOpts
+--- @class FrecencyOpts
 --- @field debug boolean
 --- @field db_dir string
 --- @field all_files boolean
@@ -26,7 +26,7 @@ Implements a [variant](https://wiki.mozilla.org/User:Jesse/NewFrecency) of Mozil
 --- @field display_score boolean
 --- @field [string] any any fzf-lua option
 
---- @param opts FrecencyFnOpts
+--- @param opts FrecencyOpts
 require('fzf-lua-frecency').frecency()
 require('fzf-lua-frecency').frecency({
    -- any fzf-lua option
@@ -34,10 +34,15 @@ require('fzf-lua-frecency').frecency({
    -- defaults:
     debug = false,
     db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
-    cwd_only = false,     -- Display files from the cwd only 
-    all_files = nil,      -- Populate non-scored files in cwd? Defaults to `true` if `cwd_only=true`, else `false`
-    stat_file = true,     -- Test for a scored file's existence in the file system
-    display_score = false,-- Prefix the fzf entry with its frecency score
+    -- Display files from the cwd only
+    cwd_only = false,     
+    -- Populate non-scored files in cwd? 
+    -- defaults to `true` if `cwd_only=true`, else `false`
+    all_files = nil,      
+    -- Test for a scored file's existence in the file system before displaying it in the picker
+    stat_file = true,     
+    -- Prefix the fzf entry with its frecency score
+    display_score = true,
 })
 ```
 
@@ -66,6 +71,7 @@ require('fzf-lua-frecency').clear_db({
 --- @field cwd? string
 --- @field db_dir? string
 --- @field debug? boolean
+--- @field stat_file? boolean
 
 --- @param filename string
 --- @param opts UpdateFileScoreOpts
@@ -76,6 +82,7 @@ require('fzf-lua-frecency.algo').update_file_score("absolute/path/to/file", {
     cwd = vim.fn.getcwd(),
     db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
     debug = false,
+    stat_file = true
 })
 ```
 
