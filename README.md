@@ -30,6 +30,8 @@ require('fzf-lua-frecency').frecency({
 
 ## API
 
+### `frecency`
+
 ```lua
 --- @class FrecencyOpts
 --- @field debug boolean
@@ -58,6 +60,8 @@ require('fzf-lua-frecency').frecency({
     display_score = true,
 })
 ```
+
+### `setup`
 
 `setup` does a few things:
 1. Registers `fzf-lua-frecency` as an `fzf-lua` extension. This extends the `FzfLua` command to enable: `:FzfLua frecency ...`
@@ -90,6 +94,8 @@ require('fzf-lua-frecency').setup({
     stat_file = true,     
 })
 ```
+
+### `clear_db`
 
 ```lua
 --- @class ClearDbOpts

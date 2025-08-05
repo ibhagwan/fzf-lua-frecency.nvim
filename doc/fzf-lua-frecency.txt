@@ -7,6 +7,9 @@ Example Usage ............................... |fzf-lua-frecency-example-usage|
 All frecency-ranked files: a scored version of `oldfiles`  |fzf-lua-frecency-all-frecency-ranked-files:-a-scored-version-of-`oldfiles|
 A smarter file picker: all files in the `cwd` with frecency-scored files listed first  |fzf-lua-frecency-a-smarter-file-picker:-all-files-in-the-`cwd`-with-frecency-scored-files-listed-first|
 API ................................................... |fzf-lua-frecency-api|
+`frecency` ....................................... |fzf-lua-frecency-frecency|
+`setup` ............................................. |fzf-lua-frecency-setup|
+`clear_db` ....................................... |fzf-lua-frecency-clear_db|
 Default `FzfLua` opts ............... |fzf-lua-frecency-default-`fzflua`-opts|
 How it works ................................. |fzf-lua-frecency-how-it-works|
 Performance ................................... |fzf-lua-frecency-performance|
@@ -58,6 +61,10 @@ A SMARTER FILE PICKER: ALL FILES IN THE `CWD` WITH FRECENCY-SCORED FILES LISTED 
 API                                                     *fzf-lua-frecency-api*
 
 
+
+                                                                              
+`FRECENCY`                                         *fzf-lua-frecency-frecency*
+
 >lua
     --- @class FrecencyOpts
     --- @field debug boolean
@@ -86,6 +93,10 @@ API                                                     *fzf-lua-frecency-api*
         display_score = true,
     })
 <
+
+                                                                              
+`SETUP`                                               *fzf-lua-frecency-setup*
+
 `setup` does a few things:
 
 1. Registers `fzf-lua-frecency` as an `fzf-lua` extension. This extends the
@@ -122,6 +133,10 @@ called.
         stat_file = true,     
     })
 <
+
+                                                                              
+`CLEAR_DB`                                         *fzf-lua-frecency-clear_db*
+
 >lua
     --- @class ClearDbOpts
     --- @field db_dir? string
