@@ -15,7 +15,7 @@ local M = {}
 --- @field display_score boolean
 --- @field [string] any any fzf-lua option
 
---- @param opts? FrecencyOpts
+--- @param opts FrecencyOpts
 local function get_files_cmd(opts)
   -- https://github.com/ibhagwan/fzf-lua/blob/e40e2337611fa426b8bcb6989fc310035c6ec4aa/README.md?plain=1#L831-L833
   local default_fd_opts = [[--absolute-path --color=never --hidden --type f --type l --exclude .git]]
