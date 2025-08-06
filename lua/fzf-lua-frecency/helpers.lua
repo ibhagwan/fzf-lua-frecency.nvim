@@ -118,4 +118,15 @@ M.strip_score = function(str)
   return str:gsub("^%d+%.?%d*%s+", "")
 end
 
+M.get_native_filepath = function(path)
+  if vim.fn.exists("+shellslash") then
+    if vim.o.shellslash ~= true then
+      return path:gsub("/","\\")
+    end
+  end
+  return path
+end
+
+M.IS_WINDOWS = (vim.fn.has('win32') == 1) and (vim.fn.has('wsl') ~= 1)
+
 return M
