@@ -161,7 +161,8 @@ M.setup = function(opts)
         -- `nvim_buf_get_name` for unnamed buffers is an empty string
         local bname = vim.api.nvim_buf_get_name(ev.buf)
         if #bname > 0 then
-          algo.update_file_score(vim.api.nvim_buf_get_name(ev.buf), {
+          local normalized_bname = vim.fs.normalize(bname)
+          algo.update_file_score(normalized_bname, {
             update_type = "increase",
             db_dir = db_dir,
             debug = debug,
