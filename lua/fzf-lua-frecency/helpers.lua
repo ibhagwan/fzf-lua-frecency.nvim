@@ -122,4 +122,13 @@ end
 -- "win32" checks for 32 and 64 bit Windows
 M.IS_WINDOWS = (vim.fn.has "win32" == M.vimscript_true) and (vim.fn.has "wsl" == M.vimscript_false)
 
+M.get_native_filepath = function(path)
+  if vim.fn.exists "+shellslash" == M.vimscript_true then
+    if vim.o.shellslash ~= true then
+      return path:gsub([[/]], [[\]])
+    end
+  end
+  return path
+end
+
 return M
