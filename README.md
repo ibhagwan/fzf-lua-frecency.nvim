@@ -182,6 +182,3 @@ require('fzf-lua-frecency').frecency({
 - [snacks.nvim's smart picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md#smart)
 - [fre integration with fzf-lua](https://github.com/ibhagwan/fzf-lua/discussions/2174)
 - [fzf-lua-enchanted-files](https://github.com/otavioschwanck/fzf-lua-enchanted-files)
-
-## TODO
-- [ ] Windows support

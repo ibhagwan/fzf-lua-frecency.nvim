@@ -15,7 +15,6 @@ How it works ................................. |fzf-lua-frecency-how-it-works|
 Performance ................................... |fzf-lua-frecency-performance|
 Dependencies ................................. |fzf-lua-frecency-dependencies|
 Similar plugins ........................... |fzf-lua-frecency-similar-plugins|
-TODO ................................................. |fzf-lua-frecency-todo|
 
 ==============================================================================
 FZF-LUA-FRECENCY.NVIM                 *fzf-lua-frecency-fzf-lua-frecency.nvim*
@@ -254,11 +253,5 @@ SIMILAR PLUGINS                             *fzf-lua-frecency-similar-plugins*
   <https://github.com/ibhagwan/fzf-lua/discussions/2174>
 - fzf-lua-enchanted-files
   <https://github.com/otavioschwanck/fzf-lua-enchanted-files>
-
-------------------------------------------------------------------------------
-TODO                                                   *fzf-lua-frecency-todo*
-
-
-- [ ] Windows support
 
 vim:tw=78:ts=8:ft=help:norl:

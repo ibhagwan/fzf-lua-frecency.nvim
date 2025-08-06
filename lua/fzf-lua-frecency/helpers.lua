@@ -127,6 +127,8 @@ M.get_native_filepath = function(path)
   return path
 end
 
+-- :h vim.fn.has
+-- "win32" checks for 32 and 64 bit Windows
 M.IS_WINDOWS = (vim.fn.has "win32" == M.vimscript_true) and (vim.fn.has "wsl" == M.vimscript_false)
 
 return M
