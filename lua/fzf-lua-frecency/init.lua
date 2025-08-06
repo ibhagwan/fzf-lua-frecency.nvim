@@ -40,6 +40,11 @@ local function get_files_cmd(opts)
     return nil
   end
 
+  if vim.fn.executable "awk" == h.vimscript_false then
+    FzfLua.utils.warn "[fzf-lua-frecency] 'awk' is required for 'frecency'."
+    return nil
+  end
+
   local toggle_flags = {
     follow = h.default(opts.toggle_follow_flag, "-L"),
     hidden = h.default(opts.toggle_hidden_flag, "--hidden"),
