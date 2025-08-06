@@ -226,8 +226,8 @@ M.frecency = function(opts)
     local all_files_cmd = get_files_cmd(opts)
     if not all_files_cmd then return cat_cmd end
 
-    local awk_cmd = "awk " .. vim.fn.shellescape("!x[$0]++") -- https://stackoverflow.com/a/11532198
-    return ("(%s%s%s) | %s"):format(cat_cmd, h.IS_WINDOWS and " && " or "; ", all_files_cmd, awk_cmd)
+    local awk_cmd = "awk " .. vim.fn.shellescape "!x[$0]++" -- https://stackoverflow.com/a/11532198
+    return ("(%s %s %s) | %s"):format(cat_cmd, h.IS_WINDOWS and "&&" or ";", all_files_cmd, awk_cmd)
   end)()
 
   -- set title flags (h|i|f) based on hidden/no-ignore/follow flags

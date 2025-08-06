@@ -119,14 +119,14 @@ M.strip_score = function(str)
 end
 
 M.get_native_filepath = function(path)
-  if vim.fn.exists("+shellslash") then
+  if vim.fn.exists "+shellslash" then
     if vim.o.shellslash ~= true then
-      return path:gsub("/","\\")
+      return path:gsub("/", "\\")
     end
   end
   return path
 end
 
-M.IS_WINDOWS = (vim.fn.has('win32') == 1) and (vim.fn.has('wsl') ~= 1)
+M.IS_WINDOWS = (vim.fn.has "win32" == M.vimscript_true) and (vim.fn.has "wsl" == M.vimscript_false)
 
 return M
