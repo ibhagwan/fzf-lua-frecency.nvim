@@ -28,7 +28,7 @@ local os_time = os.time
 local function cleanup()
   os.time = os_time
 
-  _G.FzfLua.make_entry.file = function(filename) return filename end
+  _G.FzfLua.make_entry.file = function(filename, _) return filename end
   _G._fzf_lua_frecency_dated_files = nil
   vim.fn.delete(root_dir, "rf")
   create_file(test_file_a)
