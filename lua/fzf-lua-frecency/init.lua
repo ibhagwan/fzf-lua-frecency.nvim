@@ -221,7 +221,7 @@ M.frecency = function(opts)
 
     local cat_cmd = table.concat({
       h.IS_WINDOWS and "type" or "cat",
-      vim.fn.shellescape(h.get_native_filepath(sorted_files_path)),
+      vim.fn.shellescape(sorted_files_path),
       "2>" .. (h.IS_WINDOWS and "nul" or "/dev/null"), -- in case the file doesn't exist
     }, " ")
     if not all_files then

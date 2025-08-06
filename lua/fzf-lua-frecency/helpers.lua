@@ -11,7 +11,7 @@ end
 M.default_opts = {
   debug = false,
   stat_file = true,
-  db_dir = vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency"),
+  db_dir = vim.fs.normalize(vim.fs.joinpath(vim.fn.stdpath "data", "fzf-lua-frecency")),
   display_score = true,
 }
 
@@ -98,33 +98,24 @@ end
 --- @param db_dir string
 M.get_sorted_files_path = function(db_dir)
   db_dir = M.default(db_dir, M.default_opts.db_dir)
-  return vim.fs.joinpath(db_dir, "sorted-files.txt")
+  return vim.fs.normalize(vim.fs.joinpath(db_dir, "sorted-files.txt"))
 end
 
 --- @param db_dir string
 M.get_dated_files_path = function(db_dir)
   db_dir = M.default(db_dir, M.default_opts.db_dir)
-  return vim.fs.joinpath(db_dir, "dated-files.mpack")
+  return vim.fs.normalize(vim.fs.joinpath(db_dir, "dated-files.mpack"))
 end
 
 --- @param db_dir string
 M.get_max_scores_path = function(db_dir)
   db_dir = M.default(db_dir, M.default_opts.db_dir)
-  return vim.fs.joinpath(db_dir, "max-scores.mpack")
+  return vim.fs.normalize(vim.fs.joinpath(db_dir, "max-scores.mpack"))
 end
 
 --- @param str string
 M.strip_score = function(str)
   return str:gsub("^%d+%.?%d*%s+", "")
-end
-
-M.get_native_filepath = function(path)
-  if vim.fn.exists "+shellslash" then
-    if vim.o.shellslash ~= true then
-      return path:gsub("/", "\\")
-    end
-  end
-  return path
 end
 
 -- :h vim.fn.has
