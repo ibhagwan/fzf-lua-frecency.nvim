@@ -237,6 +237,7 @@ DEPENDENCIES                                   *fzf-lua-frecency-dependencies*
 - `fd` <https://github.com/sharkdp/fd>, `rg`
   <https://github.com/BurntSushi/ripgrep> or `find`
   <https://www.gnu.org/software/findutils/>
+- `awk`
 - Neovim 0.9+
 
 ------------------------------------------------------------------------------
