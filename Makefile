@@ -16,5 +16,6 @@ test:
 
 docs: 
 	./deps/ts-vimdoc.nvim/scripts/docgen.sh README.md doc/fzf-lua-frecency.txt fzf-lua-frecency
+	nvim --headless -c "helptags doc/" -c "qa"
 
 deploy: test lint docs
