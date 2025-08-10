@@ -107,7 +107,7 @@ T["#update_file_score"]["update_type=increase"]["adds score entry for new file"]
   local dated_files = fs.read(dated_files_path)
   local date_at_score_one = dated_files[db_index][test_file_a]
   MiniTest.expect.equality(date_at_score_one, date_at_score_one_now)
-  MiniTest.expect.equality(read_sorted(), test_file_a .. "\n")
+  MiniTest.expect.equality(read_sorted(), test_file_a .. "\n\n")
 end
 
 T["#update_file_score"]["update_type=increase"]["increments score on repeated calls"] = function()
@@ -160,7 +160,7 @@ T["#update_file_score"]["update_type=increase"]["recalculates all scores when ad
     fs.read(dated_files_path)[db_index][test_file_b],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
   )
-  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n" .. test_file_a .. "\n")
+  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n" .. test_file_a .. "\n\n")
 end
 
 T["#update_file_score"]["update_type=increase"]["filters deleted files when stat_file=true"] = function()
@@ -193,7 +193,7 @@ T["#update_file_score"]["update_type=increase"]["filters deleted files when stat
     fs.read(dated_files_path)[db_index][test_file_b],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
   )
-  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
+  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n\n")
 end
 
 T["#update_file_score"]["update_type=increase"]["avoids adding deleted files when stat_file=true"] = function()
@@ -242,7 +242,7 @@ T["#update_file_score"]["update_type=increase"]["filters directories when stat_f
     fs.read(dated_files_path)[db_index][test_file_b],
     algo.compute_date_at_score_one { now = now_after_30_min, score = score_when_adding, }
   )
-  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n")
+  MiniTest.expect.equality(read_sorted(), test_file_b .. "\n\n")
 end
 
 T["#update_file_score"]["update_type=increase"]["avoids adding directories when stat_file=true"] = function()
@@ -270,7 +270,7 @@ T["#update_file_score"]["update_type=remove"]["removes entry for existing file"]
   })
 
   MiniTest.expect.equality(fs.read(dated_files_path)[db_index][test_file_a], date_at_score_one_now)
-  MiniTest.expect.equality(read_sorted(), test_file_a .. "\n")
+  MiniTest.expect.equality(read_sorted(), test_file_a .. "\n\n")
 
   algo._now = function() return now end
   algo.update_file_score(test_file_a, {
@@ -279,7 +279,7 @@ T["#update_file_score"]["update_type=remove"]["removes entry for existing file"]
   })
 
   MiniTest.expect.equality(fs.read(dated_files_path)[db_index][test_file_a], nil)
-  MiniTest.expect.equality(read_sorted(), "")
+  MiniTest.expect.equality(read_sorted(), "\n")
 end
 
 return T

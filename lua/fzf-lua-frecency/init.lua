@@ -40,11 +40,6 @@ local function get_files_cmd(opts)
     return nil
   end
 
-  if vim.fn.executable "awk" == h.vimscript_false then
-    FzfLua.utils.warn "[fzf-lua-frecency] 'awk' is required for 'frecency'."
-    return nil
-  end
-
   local toggle_flags = {
     follow = h.default(opts.toggle_follow_flag, "-L"),
     hidden = h.default(opts.toggle_hidden_flag, "--hidden"),
@@ -186,6 +181,7 @@ M.frecency = function(opts)
   local db_dir = h.default(opts.db_dir, h.default_opts.db_dir)
   local stat_file = h.default(opts.stat_file, h.default_opts.stat_file)
   local display_score = h.default(opts.display_score, h.default_opts.display_score)
+  local all_files = opts.all_files == nil and opts.cwd_only or opts.all_files
 
   local sorted_files_path = h.get_sorted_files_path(db_dir)
 
@@ -195,6 +191,7 @@ M.frecency = function(opts)
   local encodeable_opts = {
     db_dir = db_dir,
     stat_file = stat_file,
+    all_files = all_files,
     display_score = display_score,
   }
 
@@ -202,6 +199,11 @@ M.frecency = function(opts)
     _G._fzf_lua_frecency_dated_files = nil
     FzfLua.actions.act(...)
   end
+
+  opts.fn_preprocess = string.format [[
+    _G._fzf_lua_frecency_EOF = nil
+    return require("fzf-lua.make_entry").preprocess
+  ]]
 
   -- RPC worked fine on linux, but was hanging on mac - specifically vim.rpcrequest
   -- using basic string interpolation works well since all the opts that are used
@@ -213,13 +215,6 @@ M.frecency = function(opts)
   ]], __RTP__, vim.mpack.encode(encodeable_opts))
 
   opts.cmd = (function()
-    local all_files
-    if opts.all_files == nil then
-      all_files = opts.cwd_only
-    else
-      all_files = opts.all_files
-    end
-
     local cat_cmd = table.concat({
       h.IS_WINDOWS and "type" or "cat",
       vim.fn.shellescape(h.get_native_filepath(sorted_files_path)),
@@ -232,8 +227,7 @@ M.frecency = function(opts)
     local all_files_cmd = get_files_cmd(opts)
     if not all_files_cmd then return cat_cmd end
 
-    local awk_cmd = "awk " .. vim.fn.shellescape "!x[$0]++" -- https://stackoverflow.com/a/11532198
-    return ("(%s %s %s) | %s"):format(cat_cmd, h.IS_WINDOWS and "&&" or ";", all_files_cmd, awk_cmd)
+    return ("%s %s %s"):format(cat_cmd, h.IS_WINDOWS and "&&" or ";", all_files_cmd)
   end)()
 
   -- set title flags (h|i|f) based on hidden/no-ignore/follow flags

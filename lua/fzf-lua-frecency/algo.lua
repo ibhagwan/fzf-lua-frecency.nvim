@@ -181,7 +181,7 @@ M.update_file_score = function(filename, opts)
 
   fs.write {
     path = sorted_files_path,
-    data = sorted_files_str,
+    data = sorted_files_str .. "\n", -- fn_transform EOF marker
     encode = false,
   }
 end
