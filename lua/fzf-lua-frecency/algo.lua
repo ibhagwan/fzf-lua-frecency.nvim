@@ -90,12 +90,15 @@ M.update_file_score = function(filename, opts)
 
   local updated_date_at_score_one = (function()
     if opts.update_type == "increase" then
-      local should_update = true
-      if stat_file then
-        local stat_result = vim.uv.fs_stat(filename)
-        local readable = stat_result ~= nil and stat_result.type == "file"
-        should_update = readable
-      end
+      local should_update = (function()
+        if stat_file then
+          local stat_result = vim.uv.fs_stat(filename)
+          local readable = stat_result ~= nil and stat_result.type == "file"
+          return readable
+        end
+        return true
+      end)()
+
       if not should_update then
         return nil
       end
@@ -134,18 +137,21 @@ M.update_file_score = function(filename, opts)
   for dated_file_entry, date_at_one_point_entry in pairs(dated_files[db_index]) do
     local recomputed_score = M.compute_score { now = now, date_at_score_one = date_at_one_point_entry, }
 
-    local should_insert = true
-    if stat_file then
-      local stat_result = vim.uv.fs_stat(dated_file_entry)
-      local readable = stat_result ~= nil and stat_result.type == "file"
-      should_insert = readable
-    end
+    local should_insert = (function()
+      if stat_file then
+        local stat_result = vim.uv.fs_stat(dated_file_entry)
+        local readable = stat_result ~= nil and stat_result.type == "file"
+        return readable
+      end
+      return true
+    end)()
 
     if should_insert then
       table.insert(scored_files, { filename = dated_file_entry, score = recomputed_score, })
       updated_dated_files[dated_file_entry] = date_at_one_point_entry
     end
   end
+
   dated_files[db_index] = updated_dated_files
   fs.write {
     data = dated_files,
