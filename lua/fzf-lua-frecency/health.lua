@@ -27,13 +27,6 @@ function M.check()
     })
   end
 
-  if vim.fn.executable "awk" == h.vimscript_true then
-    vim.health.ok "'awk' is installed"
-  else
-    vim.health.error("'fzf-lua' is not installed", {
-      "On Windows, one installation method for 'awk' is through the choco package manager: https://community.chocolatey.org/packages/awk",
-    })
-  end
 end
 
 return M

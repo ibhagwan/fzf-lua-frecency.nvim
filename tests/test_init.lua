@@ -47,7 +47,7 @@ T["#frecency"]["builds the correct fzf command and calls fzf_exec"] = function()
 
   local cat_cmd = ("cat '%s' 2>/dev/null"):format(sorted_files_path)
   local fd_cmd = "fd --absolute-path --color=never --hidden --type f --type l --exclude .git"
-  MiniTest.expect.equality(called.cmd, ("(%s ; %s) | awk '!x[$0]++'"):format(cat_cmd, fd_cmd))
+  MiniTest.expect.equality(called.cmd, ("%s ; %s"):format(cat_cmd, fd_cmd))
 end
 
 local function write_file(path, contents)

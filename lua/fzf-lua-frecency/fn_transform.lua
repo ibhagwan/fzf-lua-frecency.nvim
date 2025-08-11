@@ -2,16 +2,26 @@ local M = {}
 
 --- @class GetFnTransformOpts
 --- @field stat_file boolean
+--- @field all_files boolean
 --- @field display_score boolean
 --- @field db_dir string
 
 --- @param rpc_opts GetFnTransformOpts
 M.get_fn_transform = function(rpc_opts)
   return function(abs_file, opts)
+    if #abs_file == 0 then
+      -- sorted files writes an extra "\n" to mark EOF
+      -- this marks the start of the 'all_files' processing
+      _G._fzf_lua_frecency_EOF = true
+      return
+    end
+
     local entry = FzfLua.make_entry.file(abs_file, opts)
     if not entry then return end
 
-    if not rpc_opts.display_score and not rpc_opts.stat_file then
+    -- we don't display score, don't test for file existence on the fs
+    -- and since we don't have an all_files cmd we don't need to dedup
+    if not rpc_opts.all_files and not rpc_opts.display_score and not rpc_opts.stat_file then
       return entry
     end
 
@@ -31,6 +41,11 @@ M.get_fn_transform = function(rpc_opts)
       dated_files[db_index] = {}
     end
     local date_at_score_one = dated_files[db_index][abs_file]
+
+    if _G._fzf_lua_frecency_EOF and date_at_score_one then
+      -- dedup: file was already seen in sorted_files, skip
+      return
+    end
 
     local max_score = 999
     local max_score_len = #h.exact_decimals(max_score, 2)
