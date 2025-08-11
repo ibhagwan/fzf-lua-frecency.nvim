@@ -86,12 +86,12 @@ M.fit_decimals = function(num, max_len)
     return two_decimals
   end
 
-  local one_decimal = M.exact_decimals(tonumber(two_decimals), 1)
+  local one_decimal = M.exact_decimals(num, 1)
   if #one_decimal <= max_len then
     return one_decimal
   end
 
-  local no_decimals = M.exact_decimals(tonumber(two_decimals), 0)
+  local no_decimals = M.exact_decimals(num, 0)
   return no_decimals
 end
 
