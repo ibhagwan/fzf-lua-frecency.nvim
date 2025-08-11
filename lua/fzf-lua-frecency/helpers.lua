@@ -107,12 +107,6 @@ M.get_dated_files_path = function(db_dir)
   return vim.fs.joinpath(db_dir, "dated-files.mpack")
 end
 
---- @param db_dir string
-M.get_max_scores_path = function(db_dir)
-  db_dir = M.default(db_dir, M.default_opts.db_dir)
-  return vim.fs.joinpath(db_dir, "max-scores.mpack")
-end
-
 --- @param str string
 M.strip_score = function(str)
   return str:gsub("^%d+%.?%d*%s+", "")

@@ -7,7 +7,6 @@ local db_dir = vim.fs.joinpath(root_dir, "db-dir")
 local db_index = 1
 local sorted_files_path = h.get_sorted_files_path(db_dir)
 local dated_files_path = h.get_dated_files_path(db_dir)
-local max_scores_path = h.get_max_scores_path(db_dir)
 local existing_file_path = vim.fs.joinpath(db_dir, "existing-dir", "existing-file.txt")
 
 local fzf_lua_fzf_exec = fzf_lua.fzf_exec
@@ -66,13 +65,11 @@ T["#clear_db"] = MiniTest.new_set {
 
       write_file(sorted_files_path, "file_1.txt\nfile")
       write_file(dated_files_path, vim.mpack.encode { [db_index] = { file_1 = now, file_2 = now_after_30_min, }, })
-      write_file(max_scores_path, vim.mpack.encode { [db_index] = { 1, }, })
       write_file(existing_file_path, "existing content")
     end,
     post_case = function()
       os.remove(sorted_files_path)
       os.remove(dated_files_path)
-      os.remove(max_scores_path)
       os.remove(existing_file_path)
     end,
   },
@@ -91,10 +88,6 @@ T["#clear_db"]["deletes the cwd dir, dated-files.mpack, max-scores.mpack, and no
     vim.uv.fs_stat(existing_file_path) ~= nil,
     true
   )
-  MiniTest.expect.equality(
-    vim.uv.fs_stat(max_scores_path) ~= nil,
-    true
-  )
 
   fzf_lua_frecency.clear_db {
     db_dir = db_dir,
@@ -106,10 +99,6 @@ T["#clear_db"]["deletes the cwd dir, dated-files.mpack, max-scores.mpack, and no
   )
   MiniTest.expect.equality(
     vim.uv.fs_stat(dated_files_path) == nil,
-    true
-  )
-  MiniTest.expect.equality(
-    vim.uv.fs_stat(max_scores_path) == nil,
     true
   )
 

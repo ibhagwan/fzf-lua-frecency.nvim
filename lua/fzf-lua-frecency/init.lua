@@ -246,11 +246,9 @@ M.clear_db = function(opts)
   local db_dir = h.default(opts.db_dir, h.default_opts.db_dir)
   local sorted_files_path = h.get_sorted_files_path(db_dir)
   local dated_files_path = h.get_dated_files_path(db_dir)
-  local max_scores_path = h.get_max_scores_path(db_dir)
 
   vim.fn.delete(sorted_files_path)
   vim.fn.delete(dated_files_path)
-  vim.fn.delete(max_scores_path)
 end
 
 return M
