@@ -5,7 +5,10 @@ local M = {}
 --- @param default_val T
 --- @return T
 M.default = function(val, default_val)
-  return val == nil and default_val or val
+  if val == nil then
+    return default_val
+  end
+  return val
 end
 
 M.default_opts = {

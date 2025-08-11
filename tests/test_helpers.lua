@@ -5,6 +5,7 @@ local T = MiniTest.new_set()
 T["#default"] = MiniTest.new_set()
 T["#default"]["returns default when value is nil"] = function()
   MiniTest.expect.equality(h.default(nil, "fallback"), "fallback")
+  MiniTest.expect.equality(h.default(nil, false), false)
 end
 
 T["#default"]["returns original value when not nil"] = function()
