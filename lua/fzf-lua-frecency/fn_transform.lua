@@ -9,15 +9,14 @@ local M = {}
 --- @param rpc_opts GetFnTransformOpts
 M.get_fn_transform = function(rpc_opts)
   return function(abs_file, opts)
-    if #abs_file == 0 then
-      -- sorted files writes an extra "\n" to mark EOF
-      -- this marks the start of the 'all_files' processing
+    local sorted_files_eof_entry = #abs_file == 0
+    if sorted_files_eof_entry then
       _G._fzf_lua_frecency_EOF = true
-      return
+      return nil
     end
 
     local entry = FzfLua.make_entry.file(abs_file, opts)
-    if not entry then return end
+    if not entry then return nil end
 
     if not rpc_opts.all_files and not rpc_opts.display_score and not rpc_opts.stat_file then
       return entry
@@ -39,8 +38,7 @@ M.get_fn_transform = function(rpc_opts)
     local date_at_score_one = dated_files[db_index][abs_file]
 
     if _G._fzf_lua_frecency_EOF and date_at_score_one then
-      -- dedup: file was already seen in sorted_files, skip
-      return
+      return nil
     end
 
     local algo = require "fzf-lua-frecency.algo"

@@ -185,9 +185,11 @@ M.update_file_score = function(filename, opts)
     sorted_files_str = sorted_files_str .. "\n"
   end
 
+  local sorted_files_eof_marker = "\n"
+
   fs.write {
     path = sorted_files_path,
-    data = sorted_files_str .. "\n", -- fn_transform EOF marker
+    data = sorted_files_str .. sorted_files_eof_marker,
     encode = false,
   }
 end
