@@ -26,7 +26,6 @@ function M.check()
       "Install find: https://www.gnu.org/software/findutils/",
     })
   end
-
 end
 
 return M

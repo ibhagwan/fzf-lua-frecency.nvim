@@ -22,10 +22,11 @@ M.default_opts = {
 --- @param msg string
 --- @param ... any
 local _notify = function(level, msg, ...)
+  msg = msg or ""
+  msg = "[fzf-lua-frecency]: " .. msg
+
   local rest = ...
-  vim.schedule(function()
-    vim.notify(msg:format(rest), level)
-  end)
+  vim.notify(msg:format(rest), level)
 end
 
 --- @param msg string
@@ -38,13 +39,6 @@ end
 --- @param ... any
 M.notify_debug = function(msg, ...)
   _notify(vim.log.levels.DEBUG, msg, ...)
-end
-
-M.notify_debug_header = function(header, ...)
-  local debug_header = (header):format(...)
-  M.notify_debug(("-"):rep(#debug_header))
-  M.notify_debug(debug_header)
-  M.notify_debug(("-"):rep(#debug_header))
 end
 
 M.vimscript_true = 1

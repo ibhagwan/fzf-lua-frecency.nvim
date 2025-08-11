@@ -73,12 +73,6 @@ M.update_file_score = function(filename, opts)
   local sorted_files_path = h.get_sorted_files_path(db_dir)
   local dated_files_path = h.get_dated_files_path(db_dir)
 
-  if debug then
-    h.notify_debug_header("DEBUG: update_file_score %s", filename)
-    h.notify_debug("opts.update_type: %s", opts.update_type)
-    h.notify_debug("now: %s", _get_pretty_date(now))
-  end
-
   local dated_files = fs.read(dated_files_path)
   if not dated_files[db_index] then
     dated_files[db_index] = {}
@@ -86,6 +80,7 @@ M.update_file_score = function(filename, opts)
 
   if debug then
     h.notify_debug("dated_files: %s", vim.inspect(dated_files))
+    h.notify_debug("opts.update_type: %s", opts.update_type)
   end
 
   local updated_date_at_score_one = (function()
