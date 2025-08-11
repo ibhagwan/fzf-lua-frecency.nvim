@@ -1,4 +1,4 @@
-*fzf-lua-frecency.txt*                             Last change: 2025 August 05
+*fzf-lua-frecency.txt*                             Last change: 2025 August 10
 
 ==============================================================================
 Table of Contents                         *fzf-lua-frecency-table-of-contents*
@@ -237,7 +237,6 @@ DEPENDENCIES                                   *fzf-lua-frecency-dependencies*
 - `fd` <https://github.com/sharkdp/fd>, `rg`
   <https://github.com/BurntSushi/ripgrep> or `find`
   <https://www.gnu.org/software/findutils/>
-- `awk`
 - Neovim 0.9+
 
 ------------------------------------------------------------------------------
