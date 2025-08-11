@@ -71,9 +71,10 @@ require('fzf-lua-frecency').frecency({
 `setup` can be called explicitly if you wish to pass along any frecency options to the `ctrl-x` action or the autocommand. 
 Otherwise, `setup` will be called automatically with the default options the first time `frecency` is called.
 
-> Note: in the case when `setup` is not explicitly called, the `opts` passed to the first `frecency` call are _not_ passed 
+> [!NOTE]
+> In the case when `setup` is not explicitly called, the `opts` passed to the first `frecency` call are _not_ passed 
 along to `setup`. This is intentional - different remaps that call `frecency` may pass different options from one another,
-and `fzf-lua-frecency` doesn't want to assume that a `frecency` invocation's options are intended for `setup` just because 
+and `fzf-lua-frecency` doesn't want to assume that a `frecency` invocation's options are intended for `setup` because 
 it came first.
 
 ```lua
