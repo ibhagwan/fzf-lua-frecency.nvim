@@ -19,16 +19,12 @@ M.get_fn_transform = function(rpc_opts)
     local entry = FzfLua.make_entry.file(abs_file, opts)
     if not entry then return end
 
-    -- we don't display score, don't test for file existence on the fs
-    -- and since we don't have an all_files cmd we don't need to dedup
     if not rpc_opts.all_files and not rpc_opts.display_score and not rpc_opts.stat_file then
       return entry
     end
 
     local fs = require "fzf-lua-frecency.fs"
     local h = require "fzf-lua-frecency.helpers"
-    local algo = require "fzf-lua-frecency.algo"
-    local now = os.time()
     local db_index = 1
 
     if not _G._fzf_lua_frecency_dated_files then
@@ -46,6 +42,9 @@ M.get_fn_transform = function(rpc_opts)
       -- dedup: file was already seen in sorted_files, skip
       return
     end
+
+    local algo = require "fzf-lua-frecency.algo"
+    local now = os.time()
 
     local max_score = 999
     local max_score_len = #h.exact_decimals(max_score, 2)
