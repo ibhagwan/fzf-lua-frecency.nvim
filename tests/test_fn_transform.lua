@@ -7,8 +7,9 @@ local db_dir = vim.fs.joinpath(root_dir, "db-dir")
 
 local cwd = vim.fs.joinpath(root_dir, "files")
 local test_file_a = vim.fs.joinpath(cwd, "test-file-a.txt")
-local test_file_b = vim.fs.joinpath(cwd, "test-file-b.txt")
 local test_dir_a = vim.fs.joinpath(cwd, "test-dir-a")
+local windows_test_file = [[C:\path\to\windows-test-file.txt]]
+local normalized_windows_test_file = vim.fs.normalize(windows_test_file)
 
 local now = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 0, sec = 0, }
 local now_after_30_min = os.time { year = 2025, month = 1, day = 1, hour = 0, min = 30, sec = 0, }
@@ -33,7 +34,6 @@ local function cleanup()
   _G._fzf_lua_frecency_EOF = nil
   vim.fn.delete(root_dir, "rf")
   create_file(test_file_a)
-  create_file(test_file_b)
   vim.fn.mkdir(test_dir_a, "p")
 end
 
@@ -132,6 +132,52 @@ T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is true"]
   fn_transform("", {})
   MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, true)
   local result = fn_transform(test_file_a, {})
+  MiniTest.expect.equality(result, nil)
+end
+T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is true"]["should handle windows-style file paths"] = function()
+  local fn_transform_without_windows_path = transform.get_fn_transform {
+    stat_file = false,
+    display_score = true,
+    db_dir = db_dir,
+  }
+
+  -- _G._fzf_lua_frecency_EOF=nil and date_at_score_one=nil
+  MiniTest.expect.equality(
+    fn_transform_without_windows_path(windows_test_file, {}),
+    [[       C:\path\to\windows-test-file.txt]]
+  )
+  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, nil)
+
+  MiniTest.expect.equality(
+    fn_transform_without_windows_path("", {}),
+    nil
+  )
+  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, true)
+
+
+  -- _G._fzf_lua_frecency_EOF=true and date_at_score_one=nil
+  MiniTest.expect.equality(
+    fn_transform_without_windows_path(windows_test_file, {}),
+    [[       C:\path\to\windows-test-file.txt]]
+  )
+
+  os.time = function() return now end
+  algo.update_file_score(normalized_windows_test_file, {
+    stat_file = false, -- not created locally because its a windows-style path
+    db_dir = db_dir,
+    update_type = "increase",
+  })
+
+  _G._fzf_lua_frecency_dated_files = nil
+
+  local fn_transform_with_windows_path = transform.get_fn_transform {
+    stat_file = false,
+    display_score = true,
+    db_dir = db_dir,
+  }
+
+  -- _G._fzf_lua_frecency_EOF=true and date_at_score_one~=nil
+  local result = fn_transform_with_windows_path(windows_test_file, {})
   MiniTest.expect.equality(result, nil)
 end
 

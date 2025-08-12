@@ -35,7 +35,7 @@ M.get_fn_transform = function(rpc_opts)
     if not dated_files[db_index] then
       dated_files[db_index] = {}
     end
-    local date_at_score_one = dated_files[db_index][abs_file]
+    local date_at_score_one = dated_files[db_index][vim.fs.normalize(abs_file)]
 
     if _G._fzf_lua_frecency_EOF and date_at_score_one then
       return nil
