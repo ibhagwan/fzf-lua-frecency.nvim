@@ -93,17 +93,6 @@ T["#get_fn_transform"]["deduplicating"]["sets _G._fzf_lua_frecency_EOF when the 
   fn_transform(test_file_a, {})
   MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, true)
 end
-T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is true, it returns early"] = function()
-  local fn_transform = transform.get_fn_transform {
-    stat_file = false,
-    display_score = true,
-    db_dir = db_dir,
-  }
-  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, nil)
-  local result = fn_transform("", {})
-  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, true)
-  MiniTest.expect.equality(result, nil)
-end
 T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is false, it does not return early"] = function()
   local fn_transform = transform.get_fn_transform {
     stat_file = false,
@@ -113,6 +102,37 @@ T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is false,
   MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, nil)
   local result = fn_transform(test_file_a, {})
   MiniTest.expect.no_equality(result, nil)
+end
+T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is true"] = MiniTest.new_set()
+T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is true"]["should return an entry when the file is not in the db"] = function()
+  local fn_transform = transform.get_fn_transform {
+    stat_file = false,
+    display_score = true,
+    db_dir = db_dir,
+  }
+  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, nil)
+  fn_transform("", {})
+  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, true)
+  local result = fn_transform(test_file_a, {})
+  MiniTest.expect.no_equality(result, nil)
+end
+T["#get_fn_transform"]["deduplicating"]["when _G._fzf_lua_frecency_EOF is true"]["should return early when the file is in the db"] = function()
+  os.time = function() return now end
+  algo.update_file_score(test_file_a, {
+    db_dir = db_dir,
+    update_type = "increase",
+  })
+
+  local fn_transform = transform.get_fn_transform {
+    stat_file = false,
+    display_score = true,
+    db_dir = db_dir,
+  }
+  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, nil)
+  fn_transform("", {})
+  MiniTest.expect.equality(_G._fzf_lua_frecency_EOF, true)
+  local result = fn_transform(test_file_a, {})
+  MiniTest.expect.equality(result, nil)
 end
 
 T["#get_fn_transform"]["display_score"] = MiniTest.new_set()
