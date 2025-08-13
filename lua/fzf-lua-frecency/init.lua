@@ -213,7 +213,7 @@ M.frecency = function(opts)
     return require "fzf-lua-frecency.fn_transform".get_fn_transform(rpc_opts)
   ]], __RTP__, vim.mpack.encode(encodeable_opts))
 
-  opts.cmd = (function()
+  opts.cmd = opts.cmd or (function()
     local cat_cmd = table.concat({
       h.IS_WINDOWS and "type" or "cat",
       vim.fn.shellescape(h.get_native_filepath(sorted_files_path)),
