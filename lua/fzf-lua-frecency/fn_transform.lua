@@ -22,6 +22,11 @@ M.get_fn_transform = function(rpc_opts)
       return entry
     end
 
+    -- NOTE: filepath may not be absolute, opts.cwd is guaranteed to exist
+    if not FzfLua.path.is_absolute(abs_file) then
+      abs_file = FzfLua.path.join({ opts.cwd, abs_file })
+    end
+
     local fs = require "fzf-lua-frecency.fs"
     local h = require "fzf-lua-frecency.helpers"
     local db_index = 1

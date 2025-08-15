@@ -15,67 +15,6 @@ local M = {}
 --- @field display_score boolean
 --- @field [string] any any fzf-lua option
 
---- @param opts FrecencyOpts
-local function get_files_cmd(opts)
-  -- https://github.com/ibhagwan/fzf-lua/blob/e40e2337611fa426b8bcb6989fc310035c6ec4aa/README.md?plain=1#L831-L833
-  local default_fd_opts = [[--absolute-path --color=never --hidden --type f --type l --exclude .git]]
-  local default_rg_opts = string.format([[--color=never --hidden --files -g "!.git" %s]], opts.cwd)
-  local default_find_opts = string.format([[%s -type f \! -path '*/.git/*']], opts.cwd)
-
-  local fd_opts = h.default(opts.fd_opts, default_fd_opts)
-  local find_opts = h.default(opts.find_opts, default_find_opts)
-  local rg_opts = h.default(opts.rg_opts, default_rg_opts)
-
-  local cmd
-  if vim.fn.executable "fdfind" == h.vimscript_true then
-    cmd = ("fdfind %s"):format(fd_opts)
-  elseif vim.fn.executable "fd" == h.vimscript_true then
-    cmd = ("fd %s"):format(fd_opts)
-  elseif vim.fn.executable "rg" == h.vimscript_true then
-    cmd = ("rg %s"):format(rg_opts)
-  elseif vim.fn.executable "find" == h.vimscript_true then
-    cmd = ("find %s"):format(find_opts)
-  else
-    FzfLua.utils.warn "[fzf-lua-frecency] 'all_files' requires 'fd', 'rg', or 'find'."
-    return nil
-  end
-
-  local toggle_flags = {
-    follow = h.default(opts.toggle_follow_flag, "-L"),
-    hidden = h.default(opts.toggle_hidden_flag, "--hidden"),
-    no_ignore = h.default(opts.toggle_ignore_flag, "--no-ignore"),
-  }
-
-  for flag_name, flag_value in pairs(toggle_flags) do
-    (function()
-      --- @type boolean | nil
-      local flag_opt = opts[flag_name]
-      if flag_opt == nil then return end
-      if cmd:match "^dir" then return end
-
-      local flag_to_use = flag_value
-      local toggle_value = flag_opt
-      local is_find_command = false
-
-      if cmd:match "^find" then
-        -- find doesn't support --no-ignore
-        if flag_name == "no_ignore" then return end
-
-        if flag_name == "hidden" then
-          -- find uses different syntax and inverted logic for hidden files
-          flag_to_use = [[\! -path '*/.*']]
-          toggle_value = not flag_opt
-          is_find_command = true
-        end
-      end
-
-      cmd = FzfLua.utils.toggle_cmd_flag(cmd, flag_to_use, toggle_value, is_find_command)
-    end)()
-  end
-
-  return cmd
-end
-
 --- @class SetupOpts
 --- @field debug boolean
 --- @field db_dir string
@@ -108,6 +47,11 @@ M.setup = function(opts)
       file_icons = true,
       color_icons = true,
       git_icons = false,
+      hidden = true, -- add `--hidden` by default
+      find_opts = [[-type f \! -path '*/.git/*']],
+      rg_opts = [[--color=never --files -g "!.git"]],
+      fd_opts = [[--color=never --type f --type l --exclude .git]],
+      dir_opts = [[/s/b/a:-d]],
       fzf_opts = {
         ["--multi"] = true,
         ["--scheme"] = "path",
@@ -223,7 +167,7 @@ M.frecency = function(opts)
       return cat_cmd
     end
 
-    local all_files_cmd = get_files_cmd(opts)
+    local all_files_cmd = require("fzf-lua.providers.files").get_files_cmd(opts)
     if not all_files_cmd then return cat_cmd end
 
     return ("%s %s %s"):format(cat_cmd, h.IS_WINDOWS and "&&" or ";", all_files_cmd)
