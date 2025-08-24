@@ -142,6 +142,14 @@ local opts = {
 }
 ```
 
+> [!IMPORTANT]
+> By default, `fzf` will filter out results based on the current input and sort the results to display the most relevant items
+first. With the `--no-sort` option enabled, `fzf` will continue to filter out results based on the current input, but it will
+_not_ sort the list of results itself as you type. `fzf-lua-frecency` defaults `--no-sort` to `true` since the list provided to `fzf`
+is already sorted: frecent files first (in order), everything else after. As a result, with `--no-sort` enabled, frecent items 
+will always rank first in the list of results - even if another entry has a better fuzzy score based on the current input.
+If you find `--no-sort` unintuitive, it can be disabled by passing `["--no-sort"] = false` to `fzf_opts`.
+
 Any of the default options can be overriden by passing in your own option:
 
 ```lua
