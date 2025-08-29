@@ -8,17 +8,17 @@ local __RTP__ = vim.fn.fnamemodify(__FILE__, ":h:h:h")
 local M = {}
 
 --- @class FrecencyOpts
---- @field debug boolean
---- @field db_dir string
---- @field all_files boolean
---- @field stat_file boolean
---- @field display_score boolean
+--- @field debug? boolean
+--- @field db_dir? string
+--- @field all_files? boolean
+--- @field stat_file? boolean
+--- @field display_score? boolean
 --- @field [string] any any fzf-lua option
 
 --- @class SetupOpts
---- @field debug boolean
---- @field db_dir string
---- @field stat_file boolean
+--- @field debug? boolean
+--- @field db_dir? string
+--- @field stat_file? boolean
 --- @field [string] any any fzf-lua option
 
 --- @param opts? SetupOpts

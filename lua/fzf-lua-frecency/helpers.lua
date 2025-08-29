@@ -92,13 +92,13 @@ M.fit_decimals = function(num, max_len)
   return no_decimals
 end
 
---- @param db_dir string
+--- @param db_dir? string
 M.get_sorted_files_path = function(db_dir)
   db_dir = M.default(db_dir, M.default_opts.db_dir)
   return vim.fs.joinpath(db_dir, "sorted-files.txt")
 end
 
---- @param db_dir string
+--- @param db_dir? string
 M.get_dated_files_path = function(db_dir)
   db_dir = M.default(db_dir, M.default_opts.db_dir)
   return vim.fs.joinpath(db_dir, "dated-files.mpack")
