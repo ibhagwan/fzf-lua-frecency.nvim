@@ -3,7 +3,7 @@ local M = {}
 --- @param path string
 M.read = function(path)
   -- io.open won't throw
-  local file = io.open(path, "r")
+  local file = io.open(path, "rb")
   if file == nil then
     return {}
   end
@@ -41,7 +41,7 @@ M.write = function(opts)
   end
 
   -- io.open won't throw
-  local file = io.open(opts.path, "w")
+  local file = io.open(opts.path, opts.encode and "wb" or "w")
   if file == nil then
     h.notify_error("ERROR: io.open failed to open the file created with vim.fn.mkdir at path: %s", opts.path)
     return
