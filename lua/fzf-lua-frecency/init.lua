@@ -91,23 +91,32 @@ M.setup = function(opts)
     }),
     true)
 
+  local timer_id = nil
   vim.api.nvim_create_autocmd({ "BufWinEnter", }, {
     group = vim.api.nvim_create_augroup("FzfLuaFrecency", { clear = true, }),
     callback = function(ev)
-      local current_win = vim.api.nvim_get_current_win()
-      -- :h nvim_win_get_config({window}) "relative is empty for normal buffers"
-      if vim.api.nvim_win_get_config(current_win).relative == "" then
-        -- `nvim_buf_get_name` for unnamed buffers is an empty string
-        local bname = vim.api.nvim_buf_get_name(ev.buf)
-        if #bname > 0 then
-          algo.update_file_score(vim.fs.normalize(bname), {
-            update_type = "increase",
-            db_dir = db_dir,
-            debug = debug,
-            stat_file = stat_file,
-          })
-        end
+      if timer_id then
+        vim.fn.timer_stop(timer_id)
       end
+
+      local current_win = vim.api.nvim_get_current_win()
+      local is_normal_win = vim.api.nvim_win_get_config(current_win).relative == ""
+      if not is_normal_win then return end
+
+      local is_normal_buf = vim.api.nvim_get_option_value("buftype", { buf = ev.buf, }) == ""
+      if not is_normal_buf then return end
+
+      local bname = vim.api.nvim_buf_get_name(ev.buf)
+      if bname == "" then return end
+
+      timer_id = vim.fn.timer_start(1000, function()
+        algo.update_file_score(vim.fs.normalize(bname), {
+          update_type = "increase",
+          db_dir = db_dir,
+          debug = debug,
+          stat_file = stat_file,
+        })
+      end)
     end,
   })
 end
